@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "Raytracer::illuminationEq(Sphere, vec3, vec3):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(Ray, double, int):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::calculateWorldSpaceCoords():Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(double, double):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "operator&lt;&lt;(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt; &gt;&amp;, Scene const&amp;):Scene.hpp">
+      </ContextState>
+      <ContextState
+         contextName = "main:main.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::raytrace(Scene, int, int):Raytracer.hpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "leftmost_x + j * x_inc">
+            </PersistentString>
+            <PersistentString
+               value = "topmost_y - i * y_inc">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(int, int):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "SceneParser::parseFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;):SceneParser.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "sphereDescription">
+            </PersistentString>
+            <PersistentString
+               value = "infile.peek()">
+            </PersistentString>
+            <PersistentString
+               value = "directionToLight">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
