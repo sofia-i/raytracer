@@ -26,7 +26,7 @@ private:
         return outputFile;
     }
 public:
-    static std::ofstream writePpm(std::string outputFilePath, std::string magicNumber, int numCols, int numRows, int maxColorVal, double*** pixelColors) {
+    static std::ofstream writePpm(std::string outputFilePath, std::string magicNumber, int numCols, int numRows, int maxColorVal, int*** pixelColors) {
         std::ofstream outputFile = setUpFile(outputFilePath, magicNumber, numCols, numRows, maxColorVal);
         
         for(int i = 0; i < numRows; ++i) {

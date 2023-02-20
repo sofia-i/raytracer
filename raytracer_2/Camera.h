@@ -14,13 +14,13 @@
 
 class Camera {
 private:
-    vec3 cameraLookAt;
-    vec3 cameraLookFrom;
-    vec3 cameraLookUp;
+    vec3<double> cameraLookAt;
+    vec3<double> cameraLookFrom;
+    vec3<double> cameraLookUp;
     double fieldOfView;
 
 public:
-    Camera(vec3 camLookAt, vec3 camLookFrom, vec3 camLookUp, double fov) {
+    Camera(vec3<double> camLookAt, vec3<double> camLookFrom, vec3<double> camLookUp, double fov) {
         this->cameraLookAt = camLookAt;
         this->cameraLookFrom = camLookFrom;
         this->cameraLookUp = camLookUp;
@@ -28,19 +28,19 @@ public:
     }
 
     Camera() : Camera(
-            vec3(0.0, 0.0, 0.0),
-            vec3(0.0, 0.0, 1.0),
-            vec3(0.0, 1.0, 0.0),
+            vec3<double>(0.0, 0.0, 0.0),
+            vec3<double>(0.0, 0.0, 1.0),
+            vec3<double>(0.0, 1.0, 0.0),
             90.0) {}
 
-    void setCameraLookAt(vec3 camLookAt) { cameraLookAt = camLookAt; }
-    vec3 getCameraLookAt() { return cameraLookAt; }
+    void setCameraLookAt(vec3<double> camLookAt) { cameraLookAt = camLookAt; }
+    vec3<double> getCameraLookAt() { return cameraLookAt; }
 
-    void setCameraLookFrom(vec3 camLookFrom) { cameraLookFrom = camLookFrom; }
-    vec3 getCameraLookFrom() { return cameraLookFrom; }
+    void setCameraLookFrom(vec3<double> camLookFrom) { cameraLookFrom = camLookFrom; }
+    vec3<double> getCameraLookFrom() { return cameraLookFrom; }
 
-    void setCameraLookUp(vec3 camLookUp) { cameraLookUp = camLookUp; }
-    vec3 getCameraLookUp() { return cameraLookUp; }
+    void setCameraLookUp(vec3<double> camLookUp) { cameraLookUp = camLookUp; }
+    vec3<double> getCameraLookUp() { return cameraLookUp; }
 
     void setFOV(double fov) { fieldOfView = fov; }
     double getFOV() { return fieldOfView; }

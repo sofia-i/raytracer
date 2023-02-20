@@ -12,12 +12,12 @@
 #include "Sphere.h"
 #include "vec3.hpp"
 
-vec3 SceneParser::readInVector(std::ifstream& infile){
+vec3<double> SceneParser::readInVector(std::ifstream& infile){
     double x; double y; double z;
     infile >> x;
     infile >> y;
     infile >> z;
-    return vec3(x, y, z);
+    return vec3<double>(x, y, z);
 }
 
 Scene SceneParser::parseFile(std::string inputFilePath) {
@@ -32,13 +32,13 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
 
     std::string description;
     infile >> description;
-    vec3 cameraLookAt = readInVector(infile);
+    vec3<double> cameraLookAt = readInVector(infile);
 
     infile >> description;
-    vec3 cameraLookFrom = readInVector(infile);
+    vec3<double> cameraLookFrom = readInVector(infile);
 
     infile >> description;
-    vec3 cameraLookUp = readInVector(infile);
+    vec3<double> cameraLookUp = readInVector(infile);
 
     infile >> description;
     double fov;
@@ -47,18 +47,18 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
     Camera camera = Camera(cameraLookAt, cameraLookFrom, cameraLookUp, fov);
 
     infile >> description;
-    vec3 directionToLight = readInVector(infile);
+    vec3<double> directionToLight = readInVector(infile);
 
     infile >> description;
-    vec3 lightColor = readInVector(infile);
+    vec3<double> lightColor = readInVector(infile);
 
     infile >> description;
-    vec3 ambientLight = readInVector(infile);
+    vec3<double> ambientLight = readInVector(infile);
 
     infile >> description;
-    vec3 backgroundColor = readInVector(infile);
+    vec3<double> backgroundColor = readInVector(infile);
 
-    std::vector<Sphere> spheres;
+    std::vector<Sphere*> spherePtrs;
     while(!infile.eof()) {
         // take in sphere information
         std::string token;
@@ -72,7 +72,7 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
         infile >> description; // circle
         
         infile >> description;
-        vec3 center = readInVector(infile);
+        vec3<double> center = readInVector(infile);
 
         infile >> description;
         double radius;
@@ -91,27 +91,27 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
         infile >> ka;
 
         infile >> description;
-        vec3 objectColor = readInVector(infile);
+        vec3<double> objectColor = readInVector(infile);
 
         infile >> description;
-        vec3 objectSpecular = readInVector(infile);
+        vec3<double> objectSpecular = readInVector(infile);
 
         infile >> description;
         double kgls;
         infile >> kgls;
 
         // create sphere
-        Sphere sphere = Sphere(center, radius, kd, ks, ka, objectColor, objectSpecular,
+        Sphere* sphere = new Sphere(center, radius, kd, ks, ka, objectColor, objectSpecular,
                                kgls, sphereDescription);
 
-        spheres.push_back(sphere);
+        spherePtrs.push_back(sphere);
     }
 
     infile.close();
 
     // create scene
     Scene scene = Scene(camera, directionToLight, lightColor, ambientLight, backgroundColor,
-                        spheres);
+                        spherePtrs);
 
     return scene;
 }

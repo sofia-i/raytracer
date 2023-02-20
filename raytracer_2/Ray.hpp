@@ -13,18 +13,18 @@
 
 class Ray {
 private:
-    vec3 origin;
-    vec3 direction;
+    vec3<double> origin;
+    vec3<double> direction;
     
 public:
-    Ray(vec3 origin, vec3 direction) {
+    Ray(vec3<double> origin, vec3<double> direction) {
         this->origin = origin;
-        this->direction = direction;
+        this->direction = getUnitVector(direction);
     }
     
-    vec3 getDirection() { return direction; }
-    vec3 getOrigin() { return origin; }
-    vec3 getPointOnRay(double t) {
+    vec3<double> getDirection() { return direction; }
+    vec3<double> getOrigin() { return origin; }
+    vec3<double> getPointOnRay(double t) {
         return origin + t * direction;
     }
     

@@ -13,45 +13,41 @@
 #include <cmath>
 #include <iostream>
 
-
+template <typename T>
 class vec3 {
 public:
-    double e[3];
+    T e[3];
 
-    vec3() {
-        e[0] = 0;
-        e[1] = 0;
-        e[2] = 0;
-    }
-    vec3(double e0, double e1, double e2) {
+    vec3() { }
+    vec3(T e0, T e1, T e2) {
         e[0] = e0; e[1] = e1, e[2] = e2;
     }
 
     // allow access by x, y, z (acting as coordinates)
-    double x() const { return e[0]; }
-    double y() const { return e[1]; }
-    double z() const { return e[2]; }
+    T x() const { return e[0]; }
+    T y() const { return e[1]; }
+    T z() const { return e[2]; }
 
     vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
     double operator[](int i) const { return e[i]; }
     // double& operator[](int i) { return e[i]; }
 
     // compound operators
-    vec3& operator+=(const vec3 &v) {
+    vec3& operator+=(const vec3<T> &v) {
         e[0] += v.e[0];
         e[1] += v.e[1];
         e[2] += v.e[2];
         return *this;
     }
 
-    vec3& operator*=(const vec3 &v) {
+    vec3& operator*=(const vec3<T> &v) {
         e[0] *= v.e[0];
         e[1] *= v.e[1];
         e[2] *= v.e[2];
         return *this;
     }
 
-    vec3& operator /=(const double val) {
+    vec3& operator /=(const T val) {
         e[0] *= 1/val;
         e[1] *= 1/val;
         e[2] *= 1/val;
@@ -61,45 +57,72 @@ public:
     double length() const {
         return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);
     }
+    
+    bool isNormalized() {
+        double length = this->length();
+        const auto relative_difference_factor = 0.0001;
+        const auto greater_magnitude = std::max(1.0, length);
+        
+        return std::abs(1.0 - length) < relative_difference_factor * greater_magnitude;
+    }
+    
+    bool checkInBounds(T min, T max) {
+        return e[0] >= min && e[0] <= max &&
+                e[1] >= min && e[1] <= max &&
+                e[2] >= min && e[2] <= max;
+    }
 
 
 };
 
 // utility functions
-inline std::ostream& operator<<(std::ostream &out, const vec3 &v) {
+template <typename T>
+inline std::ostream& operator<<(std::ostream &out, const vec3<T> &v) {
     return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
 }
 
-inline vec3 operator+(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
+template <typename T>
+inline vec3<T> operator+(const vec3<T> &u, const vec3<T> &v) {
+    return vec3<T>(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
 }
 
-inline vec3 operator-(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
+template <typename T>
+inline vec3<T> operator-(const vec3<T> &u, const vec3<T> &v) {
+    return vec3<T>(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
 }
 
-inline vec3 operator*(const vec3 &u, const vec3 &v) {
-    return vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
+template <typename T>
+inline vec3<T> operator*(const vec3<T> &u, const vec3<T> &v) {
+    return vec3<T>(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
 }
 
-inline vec3 operator*(const double k, const vec3 &v) {
-    return vec3(k * v.e[0], k * v.e[1], k * v.e[2]);
+template <typename S, typename T>
+inline vec3<T> operator*(const S k, const vec3<T> &v) {
+    return vec3<T>(k * v.e[0], k * v.e[1], k * v.e[2]);
 }
 
-inline vec3 operator*(const vec3 &v, const double k) {
-    return vec3(k * v.e[0], k * v.e[1], k * v.e[2]);
+template <typename S, typename T>
+inline vec3<T> operator*(const vec3<T> &v, const S k) {
+    return vec3<T>(k * v.e[0], k * v.e[1], k * v.e[2]);
 }
 
-inline vec3 operator/(const vec3 &v, const double k) {
-    return vec3((1/k) * v.e[0], (1/k) * v.e[1], (1/k) * v.e[2]);
+template <typename S, typename T>
+inline vec3<T> operator/(const vec3<T> &v, const S k) {
+    return vec3<T>((1/k) * v.e[0], (1/k) * v.e[1], (1/k) * v.e[2]);
 }
 
-inline double dot(const vec3 &v, const vec3 &u) {
+template <typename T>
+inline T dot(const vec3<T> &v, const vec3<T> &u) {
     return u.e[0] * v.e[0] + u.e[1] * v.e[1] + u.e[2] * v.e[2];
 }
 
-inline vec3 getUnitVector(const vec3 &v) {
+template <typename T>
+inline vec3<T> getUnitVector(const vec3<T> &v) {
     return v / v.length();
+}
+
+inline vec3<int> toIntVec3(const vec3<double> &v) {
+    return vec3<int>((int)(v.e[0]), (int)(v.e[1]), (int)(v.e[2]));
 }
 
 #endif /* vec3_hpp */

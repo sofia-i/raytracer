@@ -3,16 +3,13 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "Raytracer::illuminationEq(Sphere, vec3, vec3):Raytracer.cpp">
-      </ContextState>
-      <ContextState
-         contextName = "Raytracer::getRayResult(Ray, double, int):Raytracer.cpp">
-      </ContextState>
-      <ContextState
          contextName = "Raytracer::calculateWorldSpaceCoords():Raytracer.cpp">
       </ContextState>
       <ContextState
-         contextName = "Raytracer::getRayResult(double, double):Raytracer.cpp">
+         contextName = "Raytracer::illuminationEq(Sphere, vec3, vec3):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt; &gt;&amp; operator&lt;&lt;&lt;double&gt;(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt; &gt;&amp;, vec3&lt;double&gt; const&amp;):vec3.hpp">
       </ContextState>
       <ContextState
          contextName = "operator&lt;&lt;(std::__1::basic_ostream&lt;char, std::__1::char_traits&lt;char&gt; &gt;&amp;, Scene const&amp;):Scene.hpp">
@@ -32,9 +29,6 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "Raytracer::getRayResult(int, int):Raytracer.cpp">
-      </ContextState>
-      <ContextState
          contextName = "SceneParser::parseFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;):SceneParser.cpp">
          <PersistentStrings>
             <PersistentString
@@ -45,6 +39,23 @@
             </PersistentString>
             <PersistentString
                value = "directionToLight">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(int, int):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(double, double):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Scene::Scene(Camera, vec3&lt;double&gt;, vec3&lt;double&gt;, vec3&lt;double&gt;, vec3&lt;double&gt;, std::__1::vector&lt;Sphere, std::__1::allocator&lt;Sphere&gt; &gt;&amp;):Scene.hpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(Ray, double, int):Raytracer.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "closestIntersectedObject">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

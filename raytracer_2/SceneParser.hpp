@@ -16,7 +16,7 @@
 
 class SceneParser {
 private:
-    vec3 readInVector(std::ifstream& infile);
+    vec3<double> readInVector(std::ifstream& infile);
 
 public:
     void parseFile() { std::cout << "good job" << std::endl; }

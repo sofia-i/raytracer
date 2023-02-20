@@ -16,8 +16,8 @@
 
 int main() {
     // configure file info
-    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image.ppm";
-    std::string inputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/inputs/input1.txt";
+    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image2.ppm";
+    std::string inputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/inputs/input2.txt";
 
     // parse the scene information from the input file
     SceneParser sceneParser;
@@ -26,14 +26,14 @@ int main() {
     
     // send the results to a ppm file for output
     std::string magicNumber = "P3";
-    int numColumns = 100;
-    int numRows = 100;
+    int numColumns = 50;
+    int numRows = 50;
     int maxColorVal = 255;
     
     Raytracer raytracer = Raytracer(scene, numColumns, numRows);
     
     // do the raytracing process to get the color results for each pixel
-    double*** pixelColors = raytracer.raytrace(scene, numColumns, numRows);
+    int*** pixelColors = raytracer.raytrace(scene, numColumns, numRows);
     
     std::ofstream outputFile = PpmWriter::writePpm(outputFilePath, magicNumber, numColumns, numRows, maxColorVal, pixelColors);
 

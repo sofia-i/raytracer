@@ -27,13 +27,13 @@ private:
     double x_inc;
     double y_inc;
     
-    vec3 getRayResult(double x, double y);
-    vec3 getRayResult(Ray ray, double weight, int rayCount);
+    vec3<int> getRayResult(double x, double y);
+    vec3<int> getRayResult(Ray ray, double weight, int rayCount);
     
-    bool rayIntersectsSphere(Ray ray, Sphere sphere, double& t);
+    bool rayIntersectsSphere(Ray ray, Sphere* sphere, double& t);
     
     void calculateWorldSpaceCoords();
-    vec3 illuminationEq(Sphere sphere, vec3 normal, vec3 view);
+    vec3<int> illuminationEq(Sphere* sphere, vec3<double> normal, vec3<double> view);
     
 public:
     Raytracer(Scene scene, int numColumns, int numRows) : scene(scene) {
@@ -41,30 +41,7 @@ public:
         this->numRows = numRows;
     }
     
-    double*** raytrace(Scene scene, int numColumns, int numRows) {
-        // initialize pixelColors multi-dimensional array
-        double*** pixelColors = new double**[numRows];
-        for(int i = 0; i < numRows; ++i) {
-            pixelColors[i] = new double*[numColumns];
-            for(int j = 0; j < numColumns; ++j) {
-                pixelColors[i][j] = new double[3];
-            }
-        }
-        
-        calculateWorldSpaceCoords();
-        
-        // handle each pixel
-        for(int i = 0; i < numRows; ++i) {
-            for(int j = 0; j < numColumns; ++j) {
-                vec3 pixelColor = getRayResult(leftmost_x + j * x_inc, topmost_y - i * y_inc);
-                pixelColors[i][j][0] = pixelColor[0];
-                pixelColors[i][j][1] = pixelColor[1];
-                pixelColors[i][j][2] = pixelColor[2];
-            }
-        }
-        
-        return pixelColors;
-    }
+    int*** raytrace(Scene scene, int numColumns, int numRows);
     
 };
 

@@ -12,19 +12,19 @@
 
 class Sphere {
 private:
-    vec3 center;
+    vec3<double> center;
     double radius;
     double kd;
     double ks;
     double ka;
-    vec3 objectColor;
-    vec3 objectSpecular;
+    vec3<double> objectColor;
+    vec3<double> objectSpecular;
     double kgls;
     std::string description;
 
 public:
-    Sphere(vec3 center, double radius, double kd, double ks, double ka,
-           vec3 objectColor, vec3 objectSpecular, double kgls) {
+    Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
+           vec3<double> objectColor, vec3<double> objectSpecular, double kgls) {
         this->center = center;
         this->radius = radius;
         this->kd = kd;
@@ -36,8 +36,8 @@ public:
         this->description = "";
     }
 
-    Sphere(vec3 center, double radius, double kd, double ks, double ka,
-           vec3 objectColor, vec3 objectSpecular, double kgls, std::string description) {
+    Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
+           vec3<double> objectColor, vec3<double> objectSpecular, double kgls, std::string description) {
         this->center = center;
         this->radius = radius;
         this->kd = kd;
@@ -49,13 +49,13 @@ public:
         this->description = description;
     }
 
-    vec3 getCenter() const { return center; }
+    vec3<double> getCenter() const { return center; }
     double getRadius() const { return radius; }
     double getKd() const { return kd; }
     double getKs() const { return ks; }
     double getKa() const { return ka; }
-    vec3 getObjectColor() const { return objectColor; }
-    vec3 getObjectSpecular() const { return objectSpecular; }
+    vec3<double> getObjectColor() const { return objectColor; }
+    vec3<double> getObjectSpecular() const { return objectSpecular; }
     double getKgls() const { return kgls; }
     std::string getDescription() const { return description; }
 
