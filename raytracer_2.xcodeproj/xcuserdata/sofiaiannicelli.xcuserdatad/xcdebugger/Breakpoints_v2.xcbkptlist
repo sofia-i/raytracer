@@ -408,7 +408,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "0D9BB986-A9D7-4512-8616-14DD8A192BD1"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             condition = "specular.x() &gt; 0.0001"
             ignoreCount = "0"
             continueAfterRunningActions = "No"

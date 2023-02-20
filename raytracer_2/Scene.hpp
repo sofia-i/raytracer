@@ -26,7 +26,7 @@ public:
     Scene(Camera camera, vec3<double> directionToLight, vec3<double> lightColor, vec3<double> ambientLight, vec3<double> backgroundColor,
           std::vector<Sphere*> spherePtrs) {
         this->camera = camera;
-        this->directionToLight = directionToLight;
+        this->directionToLight = getUnitVector(directionToLight);
         this->lightColor = lightColor;
         this->ambientLight = ambientLight;
         this->backgroundColor = backgroundColor;
@@ -47,7 +47,7 @@ public:
     std::vector<Sphere*> getSpherePtrs() { return spherePtrs; }
 
     friend std::ostream& operator<<(std::ostream& os, Scene const &scene) {
-        os << "Camera" << scene.camera << std::endl;
+        os << scene.camera << std::endl;
         os << "Direction to Light: " << scene.directionToLight << std::endl;
         os << "Light Color: " << scene.lightColor << std::endl;
         os << "Ambient Light: " << scene.ambientLight << std::endl;

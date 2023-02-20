@@ -19,7 +19,6 @@ private:
     vec3<double> readInVector(std::ifstream& infile);
 
 public:
-    void parseFile() { std::cout << "good job" << std::endl; }
     Scene parseFile(std::string inputFilePath);
 };
 
