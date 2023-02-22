@@ -24,7 +24,8 @@ int*** Raytracer::raytrace(Scene scene, int numColumns, int numRows) {
     // handle each pixel
     for(int i = 0; i < numRows; ++i) {
         for(int j = 0; j < numColumns; ++j) {
-            vec3 pixelColor = getRayResult(leftmost_x + j * x_inc, topmost_y - i * y_inc);
+            // vec3 pixelColor = getRayResult(leftmost_x + j * x_inc, topmost_y - i * y_inc);
+            vec3<int> pixelColor = getRayResult((-max_u + j * u_inc) * u_axis + (max_v - i * v_inc) * v_axis);
             pixelColors[i][j][0] = pixelColor[0];
             pixelColors[i][j][1] = pixelColor[1];
             pixelColors[i][j][2] = pixelColor[2];
@@ -103,10 +104,10 @@ bool Raytracer::rayIntersectsSphere(Ray ray, Sphere* sphere, double& t) {
     }
 }
 
-vec3<int> Raytracer::getRayResult(double x, double y) {
+vec3<int> Raytracer::getRayResult(vec3<double> target) {
     // computes result of raytracing through a specified world-space coordinate
     vec3<double> rayOrigin = scene.getCamera().getCameraLookFrom();
-    vec3<double> rayDirection = vec3<double>(x, y, 0) - rayOrigin;
+    vec3<double> rayDirection = target - rayOrigin;
     Ray ray = Ray(rayOrigin, rayDirection);
     return getRayResult(ray, 1.0, 1);
 }
@@ -161,16 +162,42 @@ vec3<int> Raytracer::getRayResult(Ray ray, double weight, int rayCount) {
 
 
 // TODO: extend to allow for non-xy planar viewplanes
+/**
+ void Raytracer::calculateWorldSpaceCoords() {
+ Camera camera = scene.getCamera();
+ 
+ vec3<double> view_ray = (camera.getCameraLookAt() - camera.getCameraLookFrom());
+ double dist_to_center = view_ray.length();
+ double x = dist_to_center * tan(camera.getFOVRad() / 2);
+ double y = dist_to_center * tan(camera.getFOVRad() / 2);
+ 
+ leftmost_x = -x;
+ topmost_y = y;
+ x_inc = 2 * x / numColumns;
+ y_inc = 2 * y / numRows;
+ }
+ */
+
 void Raytracer::calculateWorldSpaceCoords() {
     Camera camera = scene.getCamera();
     
     vec3<double> view_ray = (camera.getCameraLookAt() - camera.getCameraLookFrom());
     double dist_to_center = view_ray.length();
-    double x = dist_to_center * tan(camera.getFOVRad() / 2);
-    double y = dist_to_center * tan(camera.getFOVRad() / 2);
     
-    leftmost_x = -x;
-    topmost_y = y;
-    x_inc = 2 * x / numColumns;
-    y_inc = 2 * y / numRows;
+    // double x = dist_to_center * tan(camera.getFOVRad()/2);
+    // double y = dist_to_center * tan(camera.getFOVRad()/2);
+    
+    // calculate the maximum u and v values based on the FOV
+    max_u = dist_to_center * tan(camera.getFOVRad()/2);
+    max_v = dist_to_center * tan(camera.getFOVRad()/2);
+    
+    // calculate the u and v axes
+    u_axis = getUnitVector(cross(view_ray, camera.getCameraLookUp()));
+    // v_axis = getUnitVector(cross(view_ray, u_axis));
+    v_axis = getUnitVector(cross(u_axis, view_ray));
+    
+    // calculate the u and v increments for a change in pixel
+    u_inc = 2 * max_u / numColumns;
+    v_inc = 2 * max_v / numRows;
+    
 }

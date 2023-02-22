@@ -117,6 +117,13 @@ inline T dot(const vec3<T> &v, const vec3<T> &u) {
 }
 
 template <typename T>
+inline vec3<T> cross(const vec3<T> &u, const vec3<T> &v) {
+    return vec3<T>(u.e[1] * v.e[2] - u.e[2] * v.e[1],
+                u.e[2] * v.e[0] - u.e[0] * v.e[2],
+                u.e[0] * v.e[1] - u.e[1] * v.e[0]);
+}
+
+template <typename T>
 inline vec3<T> getUnitVector(const vec3<T> &v) {
     return v / v.length();
 }

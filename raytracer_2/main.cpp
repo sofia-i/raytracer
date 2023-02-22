@@ -16,8 +16,8 @@
 
 int main() {
     // configure file info
-    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image1.ppm";
-    std::string inputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/inputs/input1.txt";
+    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image2.ppm";
+    std::string inputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/inputs/input2.txt";
 
     // parse the scene information from the input file
     SceneParser sceneParser;
