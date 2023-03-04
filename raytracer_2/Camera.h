@@ -17,14 +17,24 @@ private:
     vec3<double> cameraLookAt;
     vec3<double> cameraLookFrom;
     vec3<double> cameraLookUp;
-    double fieldOfView;
+    double fovX;
+    double fovY;
 
 public:
     Camera(vec3<double> camLookAt, vec3<double> camLookFrom, vec3<double> camLookUp, double fov) {
         this->cameraLookAt = camLookAt;
         this->cameraLookFrom = camLookFrom;
         this->cameraLookUp = camLookUp;
-        this->fieldOfView = fov;
+        this->fovX = fov;
+        this->fovY = fov;
+    }
+    
+    Camera(vec3<double> camLookAt, vec3<double> camLookFrom, vec3<double> camLookUp, double fovX, double fovY) {
+        this->cameraLookAt = camLookAt;
+        this->cameraLookFrom = camLookFrom;
+        this->cameraLookUp = camLookUp;
+        this->fovX = fovX;
+        this->fovY = fovY;
     }
 
     Camera() : Camera(
@@ -42,16 +52,19 @@ public:
     void setCameraLookUp(vec3<double> camLookUp) { cameraLookUp = camLookUp; }
     vec3<double> getCameraLookUp() { return cameraLookUp; }
 
-    void setFOV(double fov) { fieldOfView = fov; }
-    double getFOV() { return fieldOfView; }
-    double getFOVRad() { return fieldOfView * PI / 180; }
+    void setFOVx(double fovX) { this->fovX = fovX; }
+    void setFOVy(double fovY) { this->fovY = fovY; }
+    double getFOVx() { return fovX; }
+    double getFOVy() { return fovY; }
+    double getFOVxRad() { return fovX * PI / 180; }
+    double getFOVyRad() { return fovY * PI / 180; }
 
     friend std::ostream& operator<<(std::ostream& os, Camera const &camera) {
         os << "Camera" << std::endl;
         os << "Camera Looking At " << camera.cameraLookAt << std::endl;
         os << "Camera Looking From " << camera.cameraLookFrom << std::endl;
         os << "Camera Look Up " << camera.cameraLookUp << std::endl;
-        os << "Field of View " << camera.fieldOfView << std::endl;
+        os << "Field of View: x " << camera.fovX << " y " << camera.fovY << std::endl;
         return os;
     }
 };

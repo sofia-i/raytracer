@@ -15,7 +15,7 @@
 
 class Scene {
 private:
-    Camera camera;
+    Camera* camera;
     vec3<double> directionToLight;
     vec3<double> lightColor;
     vec3<double> ambientLight;
@@ -23,7 +23,8 @@ private:
     std::vector<Sphere*> spherePtrs;
 
 public:
-    Scene(Camera camera, vec3<double> directionToLight, vec3<double> lightColor, vec3<double> ambientLight, vec3<double> backgroundColor,
+    Scene() {}
+    Scene(Camera* camera, vec3<double> directionToLight, vec3<double> lightColor, vec3<double> ambientLight, vec3<double> backgroundColor,
           std::vector<Sphere*> spherePtrs) {
         this->camera = camera;
         this->directionToLight = getUnitVector(directionToLight);
@@ -39,7 +40,7 @@ public:
         }
     }
     
-    Camera getCamera() { return camera; }
+    Camera* getCamera() { return camera; }
     vec3<double> getDirectionToLight() { return directionToLight; }
     vec3<double> getLightColor() { return lightColor; }
     vec3<double> getAmbientLight() { return ambientLight; }

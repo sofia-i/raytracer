@@ -1,7 +1,7 @@
 CameraLookAt 0 0 0
 CameraLookFrom 0 0 1
 CameraLookUp 0 1 0
-FieldOfView 90
+FieldOfView 60
 
 DirectionToLight 0.0 1.0 0.0
 LightColor 1.0 1.0 1.0

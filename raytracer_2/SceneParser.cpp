@@ -44,7 +44,7 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
     double fov;
     infile >> fov;
 
-    Camera camera = Camera(cameraLookAt, cameraLookFrom, cameraLookUp, fov);
+    Camera* camera = new Camera(cameraLookAt, cameraLookFrom, cameraLookUp, fov);
 
     infile >> description;
     vec3<double> directionToLight = readInVector(infile);
@@ -67,6 +67,9 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
         if (token == "#") {
             infile.ignore();
             getline(infile, sphereDescription);
+        }
+        else {
+            break;
         }
 
         infile >> description; // circle

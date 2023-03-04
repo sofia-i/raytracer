@@ -1,0 +1,75 @@
+/**
+void go_in_a_circle() {
+    // configure file info
+    std::string outputFilePrefix = 
+"/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/go_in_circle/";
+    // ppm file for output
+    std::string magicNumber = "P3";
+    int numColumns = 1000;
+    int numRows = 1000;
+    int maxColorVal = 255;
+    
+    vec3<double> camLookAt = vec3<double>(0, 0, 0);
+    vec3<double> camLookFrom = vec3<double>(0, 0, 1);
+    vec3<double> camLookUp = vec3<double>(0.5, 0.5, 0);
+    double fov = 90;
+    Camera* camera = new Camera(camLookAt, camLookFrom, camLookUp, fov);
+    vec3<double> directionToLight = vec3<double>(1.0, 1.0, 1.0);
+    vec3<double> lightColor = vec3<double>(1.0, 1.0, 1.0);
+    vec3<double> ambientLight = vec3<double>(0.1, 0.1, 0.1);
+    vec3<double> backgroundColor = vec3<double>(0.2, 0.2, 0.2);
+    std::vector<Sphere*> spherePtrs;
+    Sphere* sphere = new Sphere(vec3<double>(0.45, 0, -0.15), 0.15, 0.8, 
+0.1, 0.3, vec3<double>(1, 1, 1), vec3<double>(1, 1, 1),
+                           4, "");
+    spherePtrs.push_back(sphere);
+    
+    Sphere* sphere2 = new Sphere(vec3<double>(0, 0, -0.1), 0.2, 0.6, 0.3, 
+0.1, vec3<double>(1, 0, 0), vec3<double>(1, 1, 1),
+                           32, "");
+    spherePtrs.push_back(sphere2);
+    
+    Sphere* sphere3 = new Sphere(vec3<double>(-0.6, 0, 0), 0.3, 0.7, 0.2, 
+0.1, vec3<double>(0, 1, 0), vec3<double>(0.5, 1, 0.5),
+                           64, "");
+    spherePtrs.push_back(sphere3);
+    
+    Sphere* sphere4 = new Sphere(vec3<double>(0, -10000.5, 0), 10000, 0.9, 
+0, 0.1, vec3<double>(0, 0, 1), vec3<double>(1, 1, 1),
+                           16, "");
+    spherePtrs.push_back(sphere4);
+    
+    Scene scene = Scene(camera, directionToLight, lightColor, 
+ambientLight, backgroundColor, spherePtrs);
+    for(int i = 0; i < 30; ++i) {
+        double angle = i * (2 * PI / 30);
+        scene.getCamera()->setCameraLookUp(vec3<double>(cos(angle), 
+sin(angle), 0));
+        
+        Raytracer raytracer = Raytracer(scene, numColumns, numRows);
+        
+        // do the raytracing process to get the color results for each 
+pixel
+        int*** pixelColors = raytracer.raytrace(scene, numColumns, 
+numRows);
+        
+        std::ofstream outputFile = PpmWriter::writePpm(outputFilePrefix + 
+"out_" + std::to_string(i) + ".ppm", magicNumber, numColumns, numRows, 
+maxColorVal, pixelColors);
+        
+        // close file
+        outputFile.close();
+        
+        // deallocate memory
+        for(int i = 0; i < numRows; ++i) {
+            for(int j = 0; j < numColumns; ++j) {
+                delete[] pixelColors[i][j];
+            }
+        }
+        for(int i = 0; i < numRows; ++i) {
+            delete[] pixelColors[i];
+        }
+        delete[] pixelColors;
+    }
+}
+ */

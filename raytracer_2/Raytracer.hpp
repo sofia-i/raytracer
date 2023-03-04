@@ -39,6 +39,7 @@ private:
     void calculateWorldSpaceCoords();
     vec3<int> illuminationEq(Sphere* sphere, vec3<double> normal, vec3<double> view);
     
+    
 public:
     Raytracer(Scene scene, int numColumns, int numRows) : scene(scene) {
         this->numColumns = numColumns;

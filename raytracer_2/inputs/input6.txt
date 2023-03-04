@@ -1,0 +1,153 @@
+CameraLookAt 0 0 0
+CameraLookFrom 0 0 2
+CameraLookUp 0 1 0
+FieldOfView 75
+
+DirectionToLight 1.0 2.0 2.0
+LightColor 1.0 1.0 1.0
+AmbientLight 0.2 0.2 0.2
+BackgroundColor 0.2 0.2 0.2
+
+
+# red metallic sphere
+Sphere
+  Center 0 0 0
+  Radius 0.5
+  Kd 0.2
+  Ks 0.5
+  Ka 0.3
+  Od 0.6 0.1 0
+  Os 0.6 0.1 0
+  Kgls 30.0
+
+# green sphere
+Sphere
+  Center -0.12 -0.12 0.1
+  Radius 0.36
+  Kd 0.5
+  Ks 0.2
+  Ka 0.3
+  Od 0.5 1 0.7
+  Os 1.0 1.0 1.0
+  Kgls 3.0
+  
+# green sphere
+Sphere
+  Center 0.12 0.12 0.1
+  Radius 0.36
+  Kd 0.5
+  Ks 0.2
+  Ka 0.3
+  Od 0.5 1 0.7
+  Os 1.0 1.0 1.0
+  Kgls 3.0
+  
+# green sphere
+Sphere
+  Center -0.12 0.12 0.1
+  Radius 0.36
+  Kd 0.5
+  Ks 0.2
+  Ka 0.3
+  Od 0.5 1 0.7
+  Os 1.0 1.0 1.0
+  Kgls 3.0
+
+# green sphere
+Sphere
+  Center 0.12 -0.12 0.1
+  Radius 0.36
+  Kd 0.5
+  Ks 0.2
+  Ka 0.3
+  Od 0.5 1 0.7
+  Os 1.0 1.0 1.0
+  Kgls 3.0
+
+# green sphere
+Sphere
+  Center 0.0 0.0 0.5
+  Radius 0.05
+  Kd 0.5
+  Ks 0.2
+  Ka 0.3
+  Od 0.5 1 0.7
+  Os 1.0 1.0 1.0
+  Kgls 32.0
+
+# purple
+Sphere
+  Center -0.6 -0.6 0.6
+  Radius 0.5
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.6 0.5 0.6
+  Os 1.0 1.0 1.0
+  Kgls 8.0
+
+# purple
+Sphere
+  Center 0.6 0.6 -0.6
+  Radius 0.5
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.6 0.5 0.6
+  Os 1.0 1.0 1.0
+  Kgls 16.0
+
+# purple
+Sphere
+  Center 1.2 1.2 -1.2
+  Radius 0.5
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.6 0.5 0.6
+  Os 1.0 1.0 1.0
+  Kgls 24.0
+
+# purple
+Sphere
+  Center 1.8 1.8 -1.8
+  Radius 0.5
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.6 0.5 0.6
+  Os 1.0 1.0 1.0
+  Kgls 36.0
+
+# purple
+Sphere
+  Center 2.4 2.4 -2.4
+  Radius 0.5
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.6 0.5 0.6
+  Os 1.0 1.0 1.0
+  Kgls 48.0
+  
+# big blue
+Sphere
+  Center -4.5 4.5 -5.0
+  Radius 4.0
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.2 0.2 0.7
+  Os 1.0 1.0 1.0
+  Kgls 16.0
+  
+# big red
+Sphere
+  Center 4.5 -4.5 -5.0
+  Radius 4.0
+  Kd 0.3
+  Ks 0.4
+  Ka 0.3
+  Od 0.7 0.2 0.2
+  Os 1.0 1.0 1.0
+  Kgls 16.0

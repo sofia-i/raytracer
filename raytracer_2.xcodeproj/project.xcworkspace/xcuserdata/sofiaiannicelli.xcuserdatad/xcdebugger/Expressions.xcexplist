@@ -29,24 +29,44 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "Raytracer::illuminationEq(Sphere*, vec3&lt;double&gt;, vec3&lt;double&gt;):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::getRayResult(int, int):Raytracer.cpp">
+      </ContextState>
+      <ContextState
          contextName = "SceneParser::parseFile(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;):SceneParser.cpp">
          <PersistentStrings>
             <PersistentString
                value = "sphereDescription">
             </PersistentString>
             <PersistentString
-               value = "infile.peek()">
+               value = "directionToLight">
             </PersistentString>
             <PersistentString
-               value = "directionToLight">
+               value = "infile.peek()">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "Raytracer::getRayResult(int, int):Raytracer.cpp">
+         contextName = "Raytracer::getRayResult(double, double):Raytracer.cpp">
       </ContextState>
       <ContextState
-         contextName = "Raytracer::getRayResult(double, double):Raytracer.cpp">
+         contextName = "Raytracer::getRayResult(vec3&lt;double&gt;):Raytracer.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Raytracer::raytrace(Scene, int, int):Raytracer.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "max_u">
+            </PersistentString>
+            <PersistentString
+               value = "(-max_u + j * u_inc) * u_axis">
+            </PersistentString>
+            <PersistentString
+               value = "j * u_inc - max_u">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "Scene::Scene(Camera, vec3&lt;double&gt;, vec3&lt;double&gt;, vec3&lt;double&gt;, vec3&lt;double&gt;, std::__1::vector&lt;Sphere, std::__1::allocator&lt;Sphere&gt; &gt;&amp;):Scene.hpp">
@@ -58,6 +78,9 @@
                value = "closestIntersectedObject">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "go_in_a_circle():main.cpp">
       </ContextState>
    </ContextStates>
 </VariablesViewState>
