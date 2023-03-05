@@ -9,6 +9,7 @@
 #include "Ray.hpp"
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 int*** Raytracer::raytrace(Scene scene, int numColumns, int numRows) {
     // initialize pixelColors multi-dimensional array
@@ -24,7 +25,10 @@ int*** Raytracer::raytrace(Scene scene, int numColumns, int numRows) {
     // handle each pixel
     for(int i = 0; i < numRows; ++i) {
         for(int j = 0; j < numColumns; ++j) {
-            // vec3 pixelColor = getRayResult(leftmost_x + j * x_inc, topmost_y - i * y_inc);
+            // TODO: remove
+            if(i == 570 && j == 500) {
+                std::string stop = "stop here";
+            }
             vec3<int> pixelColor = getRayResult((j * u_inc - max_u) * u_axis + (max_v - i * v_inc) * v_axis);
             pixelColors[i][j][0] = pixelColor[0];
             pixelColors[i][j][1] = pixelColor[1];
@@ -36,7 +40,7 @@ int*** Raytracer::raytrace(Scene scene, int numColumns, int numRows) {
 }
 
 /* Compute illumination equation */
-vec3<int> Raytracer::illuminationEq(Sphere* sphere, vec3<double> normal, vec3<double> view) {
+vec3<int> Raytracer::illuminationEq(Object* object, const vec3<double> normal, const vec3<double> view) {
     // all of the incoming vectors should be normalized
     if(!(normal.isNormalized() && view.isNormalized())) {
         std::cerr << "not normalized" << std::endl;
@@ -46,62 +50,17 @@ vec3<int> Raytracer::illuminationEq(Sphere* sphere, vec3<double> normal, vec3<do
     vec3<double> toLight = scene.getDirectionToLight();
     
     // compute ambient contribution
-    vec3<double> ambient = sphere->getKa() * scene.getAmbientLight() * sphere->getObjectColor();
+    vec3<double> ambient = object->getKa() * scene.getAmbientLight() * object->getObjectColor();
     // compute diffuse contribution
-    vec3<double> diffuse = sphere->getKd() * scene.getLightColor() * sphere->getObjectColor() * std::max(0.0, dot(normal, toLight));
+    vec3<double> diffuse = object->getKd() * scene.getLightColor() * object->getObjectColor() * std::max(0.0, dot(normal, toLight));
+    
+    vec3<double> reflection = ((2 * (dot(normal, toLight))) * normal) - toLight;
     // compute specular contribution
-    vec3<double> reflection = 2 * normal * (dot(normal, toLight)) - toLight;
-    vec3<double> specular = sphere->getKs() * scene.getLightColor() * sphere->getObjectSpecular() * std::pow(std::max(0.0, dot(view, reflection)), sphere->getKgls());
-    // std::max(0.0, pow(dot(view, reflection), sphere.getKgls()));
+    vec3<double> specular = object->getKs() * scene.getLightColor() * object->getObjectSpecular() * std::pow(std::max(0.0, dot(view, reflection)), object->getKgls());
     
     vec3<double> colorSum = ambient + diffuse + specular;
     colorResult = toIntVec3(255 * colorSum);
     return colorResult;
-}
-
-/* determine if ray intersects a sphere and update the t value if it does */
-bool Raytracer::rayIntersectsSphere(Ray ray, Sphere* sphere, double& t) {
-    // extract information from the ray and sphere
-    vec3 ray_o = ray.getOrigin();
-    vec3 ray_d = ray.getDirection();
-    
-    vec3 sphere_c = sphere->getCenter();
-    double radius = sphere->getRadius();
-    
-    // attempting to solve for intersection - compute B and C in the quadratic formula
-    double b = 2 *
-    (ray_d.x() * ray_o.x() - ray_d.x() * sphere_c.x()
-     + ray_d.y() * ray_o.y() - ray_d.y() * sphere_c.y()
-     + ray_d.z() * ray_o.z() - ray_d.z() * sphere_c.z());
-    double c = pow(ray_o.x(), 2) - 2 * ray_o.x() * sphere_c.x() + pow(sphere_c.x(), 2)
-    + pow(ray_o.y(), 2) - 2 * ray_o.y() * sphere_c.y() + pow(sphere_c.y(), 2)
-    + pow(ray_o.z(), 2) - 2 * ray_o.z() * sphere_c.z() + pow(sphere_c.z(), 2) - pow(radius, 2);
-    
-    // compute the discriminant of the quadratic formula
-    double discriminant = pow(b, 2) - 4 * c;
-    // if the discriminant is negative, there is no intersection point
-    if(discriminant < 0) {
-        return false;
-    }
-    else {
-        // calculate smaller intersection parameter
-        double t0 = (-b - sqrt(discriminant)) / 2;
-        // if positive, update t and return
-        if(t0 > 0) {
-            t = t0;
-            return true;
-        }
-        else {
-            // calculate larger t-value
-            double t1 = (-b + sqrt(discriminant)) / 2;
-            if(t1 <= 0) {
-                // no intersection (intersection point behind ray)
-                return false;
-            }
-            t = t1;
-            return true;
-        }
-    }
 }
 
 vec3<int> Raytracer::getRayResult(vec3<double> target) {
@@ -109,74 +68,81 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
     vec3<double> rayOrigin = scene.getCamera()->getCameraLookFrom();
     vec3<double> rayDirection = target - rayOrigin;
     Ray ray = Ray(rayOrigin, rayDirection);
-    return getRayResult(ray, 1.0, 1);
+    return getRayResult(ray, 1);
 }
 
-vec3<int> Raytracer::getRayResult(Ray ray, double weight, int rayCount) {
+vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
     // if the maximum number of rays have been reached, this one will not contribute and stop recursion
     if(rayCount > MAX_NUM_RAYS) {
         return vec3<int>(0, 0, 0);
     }
     
-    // find the closest sphere intersected by the sphere
-    Sphere* closestIntersectedObject = NULL;
+    // find the closest object intersected by the ray
+    Object* closestIntersectedObject = NULL;
     double intersectionT = 0.0;
     vec3<double> intersectionPoint;
     vec3<double> intersectionNormal;
     
-    // iterate over all spheres to test each
-    std::vector<Sphere*> spheres = scene.getSpherePtrs();
-    for(Sphere* spherePtr : spheres) {
-        double t;
-        // if the ray intersects the sphere, check to see if the sphere is the first one hit (so far)
-        if(rayIntersectsSphere(ray, spherePtr, t)) {
+    // iterate over all objects to test each
+    std::vector<Object*> objects = scene.getObjectPtrs();
+    for(Object* object : objects) {
+        // if the ray intersects the object, check to see if the object is the first one hit (so far)
+        double t = object->findRayObjectIntersection(ray);
+        if(t > 0) {
             if (closestIntersectedObject == NULL || t < intersectionT) {
                 // update the closest intersected object
-                closestIntersectedObject = spherePtr;
+                closestIntersectedObject = object;
                 intersectionT = t;
                 intersectionPoint = ray.getPointOnRay(t);
-                intersectionNormal = getUnitVector(intersectionPoint - spherePtr->getCenter());
+                intersectionNormal = getUnitVector(object->getIntersectionNormal(intersectionPoint));
             }
         }
     }
     
-    // at this point, we should know the closest sphere intersected
+    // at this point, we should know the closest object intersected
     // if no sphere was intersected, return the background color
     if(closestIntersectedObject == NULL) {
-        vec3<int> rayResult = toIntVec3(255 * scene.getBackgroundColor());
-        if(!rayResult.checkInBounds(0, 255)) {
-            std::cerr << rayResult << " not in bounds" << std::endl;
-        }
-        return rayResult;
+        return toIntVec3(255 * scene.getBackgroundColor());
     }
     
+    vec3<double> toLight = getUnitVector(scene.getDirectionToLight());
+    vec3<double> toView = getUnitVector(ray.getOrigin() - intersectionPoint);
+    
     // compute the color at that point based on the intersected object
-    vec3<double> toView = -ray.getDirection(); // illumination equation wants the view vector TO the eye
-    vec3<int> colorResult = weight * illuminationEq(closestIntersectedObject, intersectionNormal, toView);
+    vec3<int> primaryResult = illuminationEq(closestIntersectedObject, intersectionNormal, toView);
     
-    // compute results from reflection, transmission, and shadow rays
+    // compute results from reflection
+    vec3<double> reflectionRayDirection = getUnitVector(((2 * (dot(intersectionNormal, toView))) * intersectionNormal) - toView);
+    vec3<double> reflectionRayOrigin = intersectionPoint + (EPSILON * reflectionRayDirection);
+    Ray reflectionRay = Ray(reflectionRayOrigin, reflectionRayDirection);
     
+    vec3<int> reflectionResult = getRayResult(reflectionRay, rayCount + 1);
+    
+    // compute shadow information
+    vec3<double> shadowRayDirection = toLight;
+    vec3<double> shadowRayOrigin = intersectionPoint + EPSILON * shadowRayDirection;
+    Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+    bool inShadow = false;
+    // go over all the objects to see if it hits any
+    for(Object* object : objects) {
+        double t = object->findRayObjectIntersection(shadowRay);
+        if(t > 0) {
+            inShadow = true;
+            break;
+        }
+    }
+    
+    vec3<int> colorResult = closestIntersectedObject->getRefl() * reflectionResult;
+    
+    if(!inShadow) {
+        colorResult += primaryResult;
+    }
+    
+    // make sure not to have overflow
+    colorResult = clip(colorResult, 0, 255);
     
     return colorResult; // TODO in program 6: add other results
 }
-
-
-// TODO: extend to allow for non-xy planar viewplanes
-/**
- void Raytracer::calculateWorldSpaceCoords() {
- Camera camera = scene.getCamera();
- 
- vec3<double> view_ray = (camera.getCameraLookAt() - camera.getCameraLookFrom());
- double dist_to_center = view_ray.length();
- double x = dist_to_center * tan(camera.getFOVRad() / 2);
- double y = dist_to_center * tan(camera.getFOVRad() / 2);
- 
- leftmost_x = -x;
- topmost_y = y;
- x_inc = 2 * x / numColumns;
- y_inc = 2 * y / numRows;
- }
- */
 
 void Raytracer::calculateWorldSpaceCoords() {
     Camera* camera = scene.getCamera();

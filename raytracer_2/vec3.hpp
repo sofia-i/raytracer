@@ -58,7 +58,7 @@ public:
         return sqrt(e[0]*e[0] + e[1]*e[1] + e[2]*e[2]);
     }
     
-    bool isNormalized() {
+    bool isNormalized() const {
         double length = this->length();
         const auto relative_difference_factor = 0.0001;
         const auto greater_magnitude = std::max(1.0, length);
@@ -130,6 +130,19 @@ inline vec3<T> getUnitVector(const vec3<T> &v) {
 
 inline vec3<int> toIntVec3(const vec3<double> &v) {
     return vec3<int>((int)(v.e[0]), (int)(v.e[1]), (int)(v.e[2]));
+}
+
+inline vec3<int> clip(const vec3<int> &v, int low, int high) {
+    int x = std::max(v.e[0], low);
+    x = std::min(x, high);
+    
+    int y = std::max(v.e[1], low);
+    y = std::min(y, high);
+    
+    int z = std::max(v.e[2], low);
+    z = std::min(z, high);
+    
+    return vec3<int>(x, y, z);
 }
 
 #endif /* vec3_hpp */

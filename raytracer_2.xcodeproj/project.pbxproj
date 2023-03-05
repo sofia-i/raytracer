@@ -11,6 +11,8 @@
 		19457B75299D4C0D0036E5B7 /* Raytracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19457B73299D4C0D0036E5B7 /* Raytracer.cpp */; };
 		19457B78299D4C2C0036E5B7 /* SceneParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19457B76299D4C2C0036E5B7 /* SceneParser.cpp */; };
 		19457B7B299D4C9C0036E5B7 /* vec3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19457B79299D4C9C0036E5B7 /* vec3.cpp */; };
+		198B9E3F29B3FC9200D1C1A3 /* Sphere.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 198B9E3E29B3FC9200D1C1A3 /* Sphere.cpp */; };
+		198B9E4129B3FC9F00D1C1A3 /* Triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 198B9E4029B3FC9F00D1C1A3 /* Triangle.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +42,10 @@
 		19457B7D299D4F410036E5B7 /* inputs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = inputs; sourceTree = "<group>"; };
 		194D1A6F299F4A2600D0CCCB /* Ray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Ray.hpp; sourceTree = "<group>"; };
 		195FE996299E01670049D797 /* PpmWriter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PpmWriter.hpp; sourceTree = "<group>"; };
+		198B9E3B29B3EB5700D1C1A3 /* Object.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		198B9E3E29B3FC9200D1C1A3 /* Sphere.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sphere.cpp; sourceTree = "<group>"; };
+		198B9E4029B3FC9F00D1C1A3 /* Triangle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Triangle.cpp; sourceTree = "<group>"; };
+		198B9E4229B40A1600D1C1A3 /* Triangle.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Triangle.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,6 +81,7 @@
 				19457B7D299D4F410036E5B7 /* inputs */,
 				19457B68299D4B730036E5B7 /* main.cpp */,
 				19457B72299D4BF10036E5B7 /* Camera.h */,
+				198B9E3B29B3EB5700D1C1A3 /* Object.hpp */,
 				195FE996299E01670049D797 /* PpmWriter.hpp */,
 				194D1A6F299F4A2600D0CCCB /* Ray.hpp */,
 				19457B74299D4C0D0036E5B7 /* Raytracer.hpp */,
@@ -83,6 +90,9 @@
 				19457B77299D4C2C0036E5B7 /* SceneParser.hpp */,
 				19457B76299D4C2C0036E5B7 /* SceneParser.cpp */,
 				19457B7C299D4CC60036E5B7 /* Sphere.h */,
+				198B9E3E29B3FC9200D1C1A3 /* Sphere.cpp */,
+				198B9E4229B40A1600D1C1A3 /* Triangle.hpp */,
+				198B9E4029B3FC9F00D1C1A3 /* Triangle.cpp */,
 				19457B79299D4C9C0036E5B7 /* vec3.cpp */,
 				19457B7A299D4C9C0036E5B7 /* vec3.hpp */,
 			);
@@ -147,8 +157,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				19457B75299D4C0D0036E5B7 /* Raytracer.cpp in Sources */,
+				198B9E4129B3FC9F00D1C1A3 /* Triangle.cpp in Sources */,
 				19457B69299D4B730036E5B7 /* main.cpp in Sources */,
 				19457B7B299D4C9C0036E5B7 /* vec3.cpp in Sources */,
+				198B9E3F29B3FC9200D1C1A3 /* Sphere.cpp in Sources */,
 				19457B78299D4C2C0036E5B7 /* SceneParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -162,7 +174,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
@@ -220,7 +232,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;

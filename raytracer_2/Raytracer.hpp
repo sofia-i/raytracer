@@ -17,6 +17,7 @@
 class Raytracer {
 private:
     const int MAX_NUM_RAYS = 5;
+    const double EPSILON = 2e-8; //e-4;
     
     Scene scene;
     int numColumns;
@@ -32,12 +33,12 @@ private:
     double v_inc;
     
     vec3<int> getRayResult(vec3<double> target);
-    vec3<int> getRayResult(Ray ray, double weight, int rayCount);
+    vec3<int> getRayResult(Ray ray, int rayCount);
     
     bool rayIntersectsSphere(Ray ray, Sphere* sphere, double& t);
     
     void calculateWorldSpaceCoords();
-    vec3<int> illuminationEq(Sphere* sphere, vec3<double> normal, vec3<double> view);
+    vec3<int> illuminationEq(Object* object, vec3<double> normal, vec3<double> view);
     
     
 public:

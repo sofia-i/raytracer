@@ -9,67 +9,41 @@
 #define Sphere_h
 
 #include "vec3.hpp"
+#include "Object.hpp"
 
-class Sphere {
+class Sphere : public Object {
 private:
     vec3<double> center;
     double radius;
-    double kd;
-    double ks;
-    double ka;
-    vec3<double> objectColor;
-    vec3<double> objectSpecular;
-    double kgls;
-    std::string description;
 
 public:
     Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
-           vec3<double> objectColor, vec3<double> objectSpecular, double kgls) {
+           vec3<double> objectColor, vec3<double> objectSpecular, double kgls, double refl) : Object(kd, ks, ka, kgls, objectColor, objectSpecular, refl, "") {
         this->center = center;
         this->radius = radius;
-        this->kd = kd;
-        this->ks = ks;
-        this->ka = ka;
-        this->objectColor = objectColor;
-        this->objectSpecular = objectSpecular;
-        this->kgls = kgls;
-        this->description = "";
     }
-
     Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
-           vec3<double> objectColor, vec3<double> objectSpecular, double kgls, std::string description) {
+           vec3<double> objectColor, vec3<double> objectSpecular, double kgls, double refl, std::string description) : Object(kd, ks, ka, kgls, objectColor, objectSpecular, refl, description) {
         this->center = center;
         this->radius = radius;
-        this->kd = kd;
-        this->ks = ks;
-        this->ka = ka;
-        this->objectColor = objectColor;
-        this->objectSpecular = objectSpecular;
-        this->kgls = kgls;
-        this->description = description;
     }
 
     vec3<double> getCenter() const { return center; }
     double getRadius() const { return radius; }
-    double getKd() const { return kd; }
-    double getKs() const { return ks; }
-    double getKa() const { return ka; }
-    vec3<double> getObjectColor() const { return objectColor; }
-    vec3<double> getObjectSpecular() const { return objectSpecular; }
-    double getKgls() const { return kgls; }
-    std::string getDescription() const { return description; }
-
-    friend std::ostream& operator<<(std::ostream& os, Sphere const &sphere) {
-        os << sphere.getDescription() << std::endl;
-        os << "Center: " << sphere.getCenter() << std::endl;
-        os << "Radius: " << sphere.getRadius() << std::endl;
-        os << "Kd: " << sphere.getKd() << std::endl;
-        os << "Ks: " << sphere.getKs() << std::endl;
-        os << "Ka: " << sphere.getKa() << std::endl;
-        os << "Object Color: " << sphere.getObjectColor() << std::endl;
-        os << "Object specular: " << sphere.getObjectSpecular() << std::endl;
-        os << "Kgls: " << sphere.getKgls() << std::endl;
-        return os;
+    
+    double findRayObjectIntersection(Ray ray);
+    vec3<double> getIntersectionNormal(vec3<double> intersectionPoint);
+    
+    std::string toString() const {
+        std::string str = "";
+        std::stringstream ss(str);
+        
+        ss << getDescription() << std::endl;
+        ss << "Center: " << getCenter() << std::endl;
+        ss << "Radius: " << getRadius() << std::endl;
+        ss << Object::toString() << std::endl;
+         
+        return ss.str();
     }
 };
 

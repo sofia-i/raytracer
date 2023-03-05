@@ -17,6 +17,8 @@
 class SceneParser {
 private:
     vec3<double> readInVector(std::ifstream& infile);
+    Object* readInSphere(std::string objDescription, std::ifstream& infile);
+    Object* readInTriangle(std::string objDescription, std::ifstream& infile);
 
 public:
     Scene parseFile(std::string inputFilePath);

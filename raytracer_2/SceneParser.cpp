@@ -10,6 +10,7 @@
 #include <fstream>
 #include <vector>
 #include "Sphere.h"
+#include "Triangle.hpp"
 #include "vec3.hpp"
 
 vec3<double> SceneParser::readInVector(std::ifstream& infile){
@@ -18,6 +19,91 @@ vec3<double> SceneParser::readInVector(std::ifstream& infile){
     infile >> y;
     infile >> z;
     return vec3<double>(x, y, z);
+}
+
+Object* SceneParser::readInSphere(std::string objDescription, std::ifstream& infile) {
+    std::string description;
+    infile >> description;
+    vec3<double> center = readInVector(infile);
+
+    infile >> description;
+    double radius;
+    infile >> radius;
+
+    infile >> description;
+    double kd;
+    infile >> kd;
+
+    infile >> description;
+    double ks;
+    infile >> ks;
+
+    infile >> description;
+    double ka;
+    infile >> ka;
+
+    infile >> description;
+    vec3<double> objectColor = readInVector(infile);
+
+    infile >> description;
+    vec3<double> objectSpecular = readInVector(infile);
+
+    infile >> description;
+    double kgls;
+    infile >> kgls;
+    
+    infile >> description;
+    double refl;
+    infile >> refl;
+
+    // create sphere
+    Sphere* sphere = new Sphere(center, radius, kd, ks, ka, objectColor, objectSpecular,
+                           kgls, refl, objDescription);
+    
+    return sphere;
+}
+
+Object* SceneParser::readInTriangle(std::string objDescription, std::ifstream& infile) {
+    std::string description;
+    
+    // take in the vertices
+    std::vector<vec3<double>> vertices;
+    for(int i = 0; i < 3; ++i) {
+        vec3<double> vertex = readInVector(infile);
+        vertices.push_back(vertex);
+    }
+
+    infile >> description;
+    double kd;
+    infile >> kd;
+
+    infile >> description;
+    double ks;
+    infile >> ks;
+
+    infile >> description;
+    double ka;
+    infile >> ka;
+
+    infile >> description;
+    vec3<double> objectColor = readInVector(infile);
+
+    infile >> description;
+    vec3<double> objectSpecular = readInVector(infile);
+
+    infile >> description;
+    double kgls;
+    infile >> kgls;
+    
+    infile >> description;
+    double refl;
+    infile >> refl;
+
+    // create sphere
+    Triangle* triangle = new Triangle(vertices, kd, ks, ka, objectColor, objectSpecular,
+                           kgls, refl, objDescription);
+    
+    return triangle;
 }
 
 Scene SceneParser::parseFile(std::string inputFilePath) {
@@ -58,63 +144,40 @@ Scene SceneParser::parseFile(std::string inputFilePath) {
     infile >> description;
     vec3<double> backgroundColor = readInVector(infile);
 
-    std::vector<Sphere*> spherePtrs;
+    std::vector<Object*> objectPtrs;
     while(!infile.eof()) {
         // take in sphere information
         std::string token;
-        std::string sphereDescription;
+        std::string objDescription;
         infile >> token;
         if (token == "#") {
             infile.ignore();
-            getline(infile, sphereDescription);
+            getline(infile, objDescription);
         }
         else {
             break;
         }
 
-        infile >> description; // circle
+        // take in the object type
+        std::string objectType;
+        infile >> objectType; // circle
         
-        infile >> description;
-        vec3<double> center = readInVector(infile);
+        Object* object;
+        if(objectType == "Sphere") {
+            object = readInSphere(objDescription, infile);
+        }
+        else if(objectType == "Triangle") {
+            object = readInTriangle(objDescription, infile);
+        }
 
-        infile >> description;
-        double radius;
-        infile >> radius;
-
-        infile >> description;
-        double kd;
-        infile >> kd;
-
-        infile >> description;
-        double ks;
-        infile >> ks;
-
-        infile >> description;
-        double ka;
-        infile >> ka;
-
-        infile >> description;
-        vec3<double> objectColor = readInVector(infile);
-
-        infile >> description;
-        vec3<double> objectSpecular = readInVector(infile);
-
-        infile >> description;
-        double kgls;
-        infile >> kgls;
-
-        // create sphere
-        Sphere* sphere = new Sphere(center, radius, kd, ks, ka, objectColor, objectSpecular,
-                               kgls, sphereDescription);
-
-        spherePtrs.push_back(sphere);
+        objectPtrs.push_back(object);
     }
 
     infile.close();
 
     // create scene
     Scene scene = Scene(camera, directionToLight, lightColor, ambientLight, backgroundColor,
-                        spherePtrs);
+                        objectPtrs);
 
     return scene;
 }
