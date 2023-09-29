@@ -16,8 +16,8 @@
 
 int main() {
     // configure file info
-    std::string input_suffix = "3";
-    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image_1_" + input_suffix + ".ppm";
+    std::string input_suffix = "1";
+    std::string outputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/outputs/output_image_1_libby" + input_suffix + ".ppm";
     std::string inputFilePath = "/Users/sofiaiannicelli/Documents/BYU_WINTER_2023/graphics/raytracer_2/raytracer_2/inputs/input_1_" + input_suffix + ".txt";
 
     // parse the scene information from the input file
@@ -27,8 +27,8 @@ int main() {
     
     // send the results to a ppm file for output
     std::string magicNumber = "P3";
-    int numColumns = 1000;
-    int numRows = 1000;
+    int numColumns = 256;
+    int numRows = 256;
     int maxColorVal = 255;
     
     Raytracer raytracer = Raytracer(scene, numColumns, numRows);

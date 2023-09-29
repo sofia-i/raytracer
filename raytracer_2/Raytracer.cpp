@@ -150,9 +150,6 @@ void Raytracer::calculateWorldSpaceCoords() {
     vec3<double> view_ray = (camera->getCameraLookAt() - camera->getCameraLookFrom());
     double dist_to_center = view_ray.length();
     
-    // double x = dist_to_center * tan(camera.getFOVRad()/2);
-    // double y = dist_to_center * tan(camera.getFOVRad()/2);
-    
     // calculate the maximum u and v values based on the FOV
     max_u = dist_to_center * tan(camera->getFOVxRad()/2);
     max_v = dist_to_center * tan(camera->getFOVyRad()/2);
