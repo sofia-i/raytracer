@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "Scene.hpp"
+#include "Camera.h"
 #include "Ray.hpp"
 
 // #define MAX_NUM_RAYS 5;
@@ -47,7 +48,15 @@ public:
         this->numRows = numRows;
     }
     
-    int*** raytrace(Scene scene, int numColumns, int numRows);
+    int*** raytrace(int numColumns, int numRows);
+    
+    Scene* getScene() {
+        return &scene;
+    }
+    
+    Camera* getCamera() {
+        return scene.getCamera();
+    }
     
 };
 

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <algorithm>
 
-int*** Raytracer::raytrace(Scene scene, int numColumns, int numRows) {
+int*** Raytracer::raytrace(int numColumns, int numRows) {
     // initialize pixelColors multi-dimensional array
     int*** pixelColors = new int**[numRows];
     for(int i = 0; i < numRows; ++i) {
@@ -149,6 +149,7 @@ void Raytracer::calculateWorldSpaceCoords() {
     
     vec3<double> view_ray = (camera->getCameraLookAt() - camera->getCameraLookFrom());
     double dist_to_center = view_ray.length();
+    // std::cout << dist_to_center << std::endl;
     
     // calculate the maximum u and v values based on the FOV
     max_u = dist_to_center * tan(camera->getFOVxRad()/2);

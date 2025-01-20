@@ -46,6 +46,10 @@ public:
     vec3<double> getAmbientLight() { return ambientLight; }
     vec3<double> getBackgroundColor() { return backgroundColor; }
     std::vector<Object*> getObjectPtrs() { return objectPtrs; }
+    
+    void setDirectionToLight(vec3<double> lightVector) {
+        this->directionToLight = getUnitVector(lightVector);
+    }
 
     friend std::ostream& operator<<(std::ostream& os, Scene const &scene) {
         os << scene.camera << std::endl;
