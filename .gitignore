@@ -1,0 +1,9 @@
+# Mac
+.DS_Store
+
+# C++
+cmake-build-debug/*
+
+.idea/*
+
+outputs/*
