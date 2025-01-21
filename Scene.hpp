@@ -18,7 +18,9 @@
 class Scene {
 public:
     Scene() = default;
-    Scene(Camera& camera, vec3<double> ambient_light, vec3<double> backgroundColor);
+    Scene(Camera &camera, vec3<double> ambient_light, vec3<double> backgroundColor)  :
+            camera(camera), ambient_light(ambient_light), backgroundColor(backgroundColor),
+            ambient_ior(IndexOfRefraction::AIR) {}
 
     Camera getCamera() { return camera; }
     vec3<double> getAmbientLight() const { return ambient_light; }
@@ -50,9 +52,5 @@ private:
     double ambient_ior;  // index of refraction
 
 };
-
-Scene::Scene(Camera &camera, vec3<double> ambient_light, vec3<double> backgroundColor)  :
-        camera(camera), ambient_light(ambient_light), backgroundColor(backgroundColor),
-        ambient_ior(IndexOfRefraction::AIR){ }
 
 #endif /* Scene_hpp */
