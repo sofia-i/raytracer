@@ -29,13 +29,13 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
             vec3<int> pixelColor(0, 0, 0);
             for(int m = 0; m < raysPerPixelPerSide; ++m) {
                 for(int n = 0; n < raysPerPixelPerSide; ++n) {
-                    double uCoord = ((j - 1.) + (double(m) / raysPerPixelPerSide)) * worldCoords.uInc;
-                    double vCoord = ((i - 1.) + (double(n) / raysPerPixelPerSide)) * worldCoords.vInc;
+                    double uCoord = ((j - 1.) + ((double(m)+1) / raysPerPixelPerSide)) * worldCoords.uInc;
+                    double vCoord = ((i - 1.) + ((double(n)+1) / raysPerPixelPerSide)) * worldCoords.vInc;
                     pixelColor += getRayResult((uCoord - worldCoords.maxU) * worldCoords.uAxis +
                                                (worldCoords.maxV - vCoord) * worldCoords.vAxis);
                 }
             }
-            pixelColor = pixelColor / (raysPerPixelPerSide * raysPerPixelPerSide);
+            pixelColor = pixelColor / double(raysPerPixelPerSide * raysPerPixelPerSide);
             pixelColors[i][j][0] = pixelColor[0];
             pixelColors[i][j][1] = pixelColor[1];
             pixelColors[i][j][2] = pixelColor[2];
