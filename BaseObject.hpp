@@ -42,7 +42,8 @@ private:
 class BaseObject {
 public:
     virtual double findRayObjectIntersection(Ray ray) = 0;
-    virtual vec3<double> getIntersectionNormal(vec3<double> intersectionPoint) = 0;
+    virtual double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) = 0;
+    // virtual vec3<double> getIntersectionNormal(vec3<double> intersectionPoint) = 0;
 
 public:
     BaseObject(double diffuseK, double specularK, double ambientK, double glsK,

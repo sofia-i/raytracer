@@ -39,9 +39,9 @@ public:
 
     vec3<double> getCenter() const { return center; }
     double getRadius() const { return radius; }
-    
+
     double findRayObjectIntersection(Ray ray) override;
-    vec3<double> getIntersectionNormal(vec3<double> intersectionPoint) override;
+    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) override;
     
     std::string toString() const override {
         std::string str;

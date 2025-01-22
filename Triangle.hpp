@@ -19,6 +19,7 @@ public:
             BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, "") {
         this->vertices = vertices;
         calculatePlaneNormal();
+        distToOrigin = calculateDistToOrigin();
     }
     
     Triangle(std::vector<vec3<double>> vertices, double kd, double ks, double ka,
@@ -26,6 +27,7 @@ public:
             BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, description) {
         this->vertices = vertices;
         calculatePlaneNormal();
+        distToOrigin = calculateDistToOrigin();
     }
 
     ~Triangle() override = default; // I. destructor
@@ -35,7 +37,7 @@ public:
     Triangle& operator=(Triangle&& other) noexcept = default; // V. move assignment
 
     double findRayObjectIntersection(Ray ray) override;
-    vec3<double> getIntersectionNormal(vec3<double> intersectionPoint) override;
+    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) override;
     
     std::string toString() const override {
         std::string str = "";
@@ -51,8 +53,10 @@ public:
 private:
     std::vector<vec3<double>> vertices;
     vec3<double> planeNormal;
+    double distToOrigin;
 
     void calculatePlaneNormal();
+    double calculateDistToOrigin();
 };
 
 

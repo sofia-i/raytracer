@@ -121,9 +121,10 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
     vec3<double> intersectPt;
     vec3<double> intersectNormal;
 
+    vec3<double> normal;
     // iterate over all objects to test each
     for(int i = 0; i < scene.objects.size(); ++i) {
-        double t = scene.objects[i]->findRayObjectIntersection(ray);
+        double t = scene.objects[i]->findRayObjectIntersection(ray, normal);
         // if the ray intersects the object, check to see if the object is the first one hit (so far)
         if(t > 0) {
             if(closestObjIdx == -1 || t < intersectT) {
@@ -131,7 +132,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
                 closestObjIdx = i;
                 intersectT = t;
                 intersectPt = ray.getPointOnRay(t);
-                intersectNormal = getUnitVector(scene.objects[i]->getIntersectionNormal(intersectPt));
+                intersectNormal = normal;
             }
         }
     }
@@ -154,6 +155,8 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
         refractionResult += scene.objects[closestObjIdx]->getRefractionK() *
                 getRayResult(refractionRay, ++rayCount);
     }
+
+    // combine reflection and refraction based on fresnel?
 
     // compute results from reflection
     vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(intersectNormal, toView))) * intersectNormal) -

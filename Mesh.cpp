@@ -17,9 +17,10 @@ double Mesh::findRayObjectIntersection(Ray ray) {
     return 0;
 }
 
-vec3<double> Mesh::getIntersectionNormal(vec3<double> intersectionPoint) {
+double Mesh::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) {
     // TODO
-    return vec3<double>();
+    double t = findRayObjectIntersection(ray);
+    return 0;
 }
 
 
