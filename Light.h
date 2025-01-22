@@ -19,14 +19,6 @@ public:
 
     virtual vec3<double> getDirectionToLight(vec3<double> point) const = 0;
 
-    vec3<double> getDirectionToLight(vec3<double> point, bool normalize) const {
-        vec3<double> direction = getDirectionToLight(point);
-        if(normalize) {
-            direction = getUnitVector(direction);
-        }
-        return direction;
-    }
-
     vec3<double> getLightColor() const { return lightColor; }
 
     virtual std::string toString() const = 0;
@@ -53,7 +45,7 @@ public:
     DirectionalLight& operator=(DirectionalLight&& other) noexcept = default; // V. move assignment
 
     vec3<double> getDirectionToLight(vec3<double> point) const override {
-        return directionToLight;
+        return getUnitVector(directionToLight);
     }
 
     std::string toString() const override {
@@ -80,7 +72,7 @@ public:
     PointLight& operator=(PointLight&& other) noexcept = default; // V. move assignment
 
     vec3<double> getDirectionToLight(vec3<double> point) const override {
-        return position - point;
+        return getUnitVector(position - point);
     }
 
     std::string toString() const override {
