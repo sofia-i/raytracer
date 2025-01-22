@@ -45,6 +45,19 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
     return pixelColors;
 }
 
+bool Raytracer::getInShadow(Ray shadowRay) {
+    bool inShadow = false;
+    // go over all the objects to see if it hits any
+    for(auto&& otherObj: scene.objects) {
+        double t = otherObj->findRayObjectIntersection(shadowRay);
+        if(t > 0) {
+            inShadow = true;
+            break;
+        }
+    }
+    return inShadow;
+}
+
 /* Compute illumination equation */
 // includes intensity from ambient, specular, diffuse
 // not from reflection, transmission
@@ -69,15 +82,7 @@ vec3<int> Raytracer::illuminationEq(int objectIdx, const vec3<double> normal, co
         vec3<double> shadowRayDirection = toLight;
         vec3<double> shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
         Ray shadow_ray = Ray(shadowRayOrigin, shadowRayDirection);
-        bool inShadow = false;
-        // go over all the objects to see if it hits any
-        for(auto&& otherObj: scene.objects) {
-            double t = otherObj->findRayObjectIntersection(shadow_ray);
-            if(t > 0) {
-                inShadow = true;
-                break;
-            }
-        }
+        bool inShadow = getInShadow(shadow_ray);
 
         // calculate intensity if not in shadow
         if(!inShadow) {

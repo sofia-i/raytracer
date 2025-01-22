@@ -64,6 +64,8 @@ private:
     vec3<int> getRayResult(vec3<double> target);
     vec3<int> getRayResult(Ray ray, int rayCount);
 
+    bool getInShadow(Ray shadowRay);
+
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
     vec3<int> illuminationEq(int objectIdx, vec3<double> normal, vec3<double> view,
                              const vec3<double> intersectPt);
