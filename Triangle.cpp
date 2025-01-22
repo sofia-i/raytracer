@@ -9,7 +9,7 @@
 #include "Ray.hpp"
 
 double Triangle::calculateDistToOrigin() {
-    return abs(dot(planeNormal, -vertices[0]));
+    return dot(planeNormal, -vertices[0]);
 }
 
 void Triangle::calculatePlaneNormal() {
@@ -97,7 +97,16 @@ double Triangle::findRayObjectIntersection(Ray ray) {
 
 double Triangle::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) {
     double t = findRayObjectIntersection(ray);
-    intersectNormal = planeNormal;
+    if(t > 0) {
+        if(dot(ray.getDirection(), planeNormal) < 0.0) {
+            // The ray and the plane normal are facing in opposite directions (front face)
+            intersectNormal = planeNormal;
+        }
+        else {
+            // back face
+            intersectNormal = -planeNormal;
+        }
+    }
     return t;
 }
 
