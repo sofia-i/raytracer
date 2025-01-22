@@ -25,6 +25,7 @@ public:
     Camera getCamera() { return camera; }
     vec3<double> getAmbientLight() const { return ambient_light; }
     vec3<double> getBackgroundColor() const { return backgroundColor; }
+    double getAmbientIor() const { return ambient_ior; }
 
     std::vector<std::shared_ptr<BaseObject>> objects;
     std::vector<std::shared_ptr<Light>> lights;

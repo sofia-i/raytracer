@@ -28,7 +28,7 @@ public:
     Triangle& operator=(Triangle&& other) noexcept = default; // V. move assignment
 
     double findRayObjectIntersection(Ray ray) override;
-    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) override;
+    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
     
     std::string toString() const override {
         std::string str = "";

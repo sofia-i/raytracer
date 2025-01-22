@@ -9,6 +9,7 @@
 #define Raytracer_hpp
 
 #include <cstdio>
+#include <stack>
 #include "Scene.hpp"
 #include "Camera.h"
 #include "Ray.hpp"
@@ -30,19 +31,23 @@ struct WorldSpaceCoord {
 };
 
 struct Intersection {
-    Intersection(int objIndex, double t, const vec3<double>& intersectPt, const vec3<double>& normal) :
-            objIndex(objIndex), t(t), point(intersectPt), normal(normal) {}
+    Intersection(int objIndex, double t, const vec3<double>& intersectPt, const vec3<double>& normal,
+                 bool backFace) :
+            objIndex(objIndex), t(t), point(intersectPt), normal(normal), backFace(backFace) {}
 
     int objIndex;
     double t;
     vec3<double> point;
     vec3<double> normal;
+    bool backFace;
 };
 
 class Raytracer {
 public:
     explicit Raytracer(Scene scene) : scene(scene), raysPerPixelPerSide(2) { }
-    Raytracer(Scene scene, int raysPerPixelPerSide) : scene(scene), raysPerPixelPerSide(raysPerPixelPerSide) { }
+    Raytracer(Scene scene, int raysPerPixelPerSide) : scene(scene), raysPerPixelPerSide(raysPerPixelPerSide) {
+        iors.push(scene.getAmbientIor());
+    }
 
     ~Raytracer();
     
@@ -66,6 +71,8 @@ private:
     // int numCols;
     // int numRows;
 
+    std::stack<double> iors;
+
     /**
      *
      * @param target world-space coordinate to raytrace through
@@ -87,7 +94,16 @@ private:
     inline vec3<double> getSpecular(int objectIdx, const std::shared_ptr<Light>& light,
                                     const vec3<double>& normal, const vec3<double>& toLight,
                                     const vec3<double>& view);
-    
+    inline vec3<int> getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
+                                     const vec3<double>& intersectPt, double iorRatio, int rayCount);
+    inline Ray getTransmissionRay(const vec3<double>& normal, const vec3<double>& rayD,
+                                  const vec3<double>& intersectPt, double iorRatio);
+    inline vec3<int> getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
+                                   const vec3<double>& intersectPt, int rayCount);
+
+    void getIorAcrossIntersection(int objIdx, bool isBackFace, double& iorIn, double& iorOut, double& iorRatio);
+    double getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD,
+                               const double& iorIn, const double& iorOut, const double& iorRatio);
 };
 
 #endif /* Raytracer_hpp */

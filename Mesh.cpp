@@ -14,7 +14,7 @@ double Mesh::findRayObjectIntersection(Ray ray) {
     return 0;
 }
 
-double Mesh::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) {
+double Mesh::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) {
     // TODO
     double t = findRayObjectIntersection(ray);
     return 0;

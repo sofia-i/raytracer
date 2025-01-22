@@ -140,10 +140,12 @@ Intersection Raytracer::getClosestIntersection(const Ray& ray) {
     double intersectT;
     vec3<double> intersectPt;
     vec3<double> intersectNormal;
+    bool intersectIsBackFace;
 
+    bool backFace;
     // iterate over all objects to test each
     for(int i = 0; i < scene.objects.size(); ++i) {
-        double t = scene.objects[i]->findRayObjectIntersection(ray, normal);
+        double t = scene.objects[i]->findRayObjectIntersection(ray, normal, backFace);
         // if the ray intersects the object, check to see if the object is the first one hit (so far)
         if(t > 0) {
             if(closestObjIdx == -1 || t < intersectT) {
@@ -152,11 +154,71 @@ Intersection Raytracer::getClosestIntersection(const Ray& ray) {
                 intersectT = t;
                 intersectPt = ray.getPointOnRay(t);
                 intersectNormal = normal;
+                intersectIsBackFace = backFace;
             }
         }
     }
 
-    return Intersection(closestObjIdx, intersectT, intersectPt, intersectNormal);
+    return Intersection(closestObjIdx, intersectT, intersectPt, intersectNormal, intersectIsBackFace);
+}
+
+void Raytracer::getIorAcrossIntersection(int objIdx, bool isBackFace, double& iorIn, double& iorOut, double& iorRatio) {
+    if(isBackFace && iors.size() > 1) {
+        // coming out of material
+        iorIn = iors.top();
+        iors.pop();
+        iorOut = iors.top();
+        iorRatio = iorOut / iorIn;
+    }
+    else {
+        iorIn = iors.top();
+        iorOut = scene.objects[objIdx]->mat()->getIOR();
+        iorRatio = iorOut / iorIn;
+        iors.push(iorOut);
+    }
+}
+
+double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD,
+                                      const double& iorIn, const double& iorOut, const double& iorRatio) {
+    double cosIn = dot(normal, rayD); // TODO: clamp to 1?
+    double sinIn = sqrt(1.0 - cosIn * cosIn);
+    double sinOut = iorRatio * sinIn;
+
+    if(sinOut > 1.0) { // Total Internal Reflection
+        return 1;
+    }
+    else {
+        double cosOut = sqrt(1.0 - sinOut * sinOut);
+        double kRefl1 = (iorOut * cosIn - iorIn * cosOut) / (iorOut * cosIn + iorIn * cosOut);
+        double kRefl2 = (iorIn * cosOut - iorOut * cosIn) / (iorIn * cosOut + iorOut * cosIn);
+        return 0.5 * (kRefl1 * kRefl1 + kRefl2 * kRefl2);
+    }
+}
+
+inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<double>& rayD,
+                                         const vec3<double>& intersectPt, const double iorRatio) {
+    double cosIn = dot(normal, rayD);
+    vec3<double> refractDirection = iorRatio * rayD +
+                                    (iorRatio * cosIn * normal) -
+                                    sqrt(1 - pow(iorRatio, 2) * (1 - pow(cosIn, 2))) * normal;
+    vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
+    return Ray(refractOrigin, refractDirection);
+}
+
+inline vec3<int> Raytracer::getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
+                                    const vec3<double>& intersectPt, double iorRatio, int rayCount) {
+    Ray transmissionRay = getTransmissionRay(normal, rayD, intersectPt, iorRatio);
+    return scene.objects[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount);
+}
+
+inline vec3<int> Raytracer::getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
+                               const vec3<double>& intersectPt, int rayCount) {
+    vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(normal, toView))) * normal) -
+                                                     toView);
+    vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
+    Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
+
+    return scene.objects[objectIdx]->mat()->getRefl() * getRayResult(reflectionRay, ++rayCount);
 }
 
 vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
@@ -173,34 +235,39 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
         return toIntVec3(255 * scene.getBackgroundColor());
     }
 
+    vec3<int> colorResult(0, 0, 0);
+
     vec3<double> toView = getUnitVector(ray.getOrigin() - hit.point);
     vec3<int> primaryResult = illuminationEq(hit.objIndex, hit.normal, toView, hit.point);
+    colorResult += primaryResult;
 
     vec3<int> refractionResult(0, 0, 0);
     // TODO: transmission
-    /*
-    if(scene.objects[closestObjIdx]->mat()->getIsRefractive()) {
-        vec3<double> refractDirection;
-        vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
-        Ray refractionRay = Ray(refractOrigin, refractDirection);
-        refractionResult += scene.objects[closestObjIdx]->getRefractionK() *
-                getRayResult(refractionRay, ++rayCount);
+    if(scene.objects[hit.objIndex]->mat()->getIsRefractive()) {
+        // find iorRatio (eta)
+        double iorRatio;
+        double iorIn;
+        double iorOut;
+        getIorAcrossIntersection(hit.objIndex, hit.backFace, iorIn, iorOut, iorRatio);
+
+        double kTran = 0;
+        double kRefl = getPortionReflected(hit.normal, ray.getDirection(), iorIn, iorOut, iorRatio);
+        if(kRefl < 1) {
+            // compute refraction
+            kTran = 1.0 - kRefl;
+            refractionResult = getTransmission(hit.objIndex, hit.normal, toView, hit.point, iorRatio,
+                                               rayCount);
+        }
+        // compute results from reflection
+        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount);
+
+        // combine reflection and refraction based on fresnel equations
+        colorResult += kRefl * reflectionResult + kTran * refractionResult;
     }
-     */
-
-    // combine reflection and refraction based on fresnel?
-
-    // compute results from reflection
-    vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(hit.normal, toView))) * hit.normal) -
-                                                     toView);
-    vec3<double> reflectRayOrigin = hit.point + (EPSILON * reflectRayDirection);
-    Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
-
-    vec3<int> reflectionResult = scene.objects[hit.objIndex]->mat()->getRefl() *
-            getRayResult(reflectionRay, ++rayCount);
-
-    // combine
-    vec3<int> colorResult = primaryResult + reflectionResult + refractionResult;
+    else {
+        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount);
+        colorResult += reflectionResult;
+    }
 
     // make sure not to have overflow
     colorResult = clip(colorResult, 0, 255);

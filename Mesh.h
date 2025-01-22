@@ -25,7 +25,7 @@ public:
     Mesh& operator=(Mesh&& other) noexcept = default; // V. move assignment
 
     double findRayObjectIntersection(Ray ray) override;
-    double findRayObjectIntersection(Ray ray, vec3<double>& intersectionNormal) override;
+    double findRayObjectIntersection(Ray ray, vec3<double>& intersectionNormal, bool& backFace) override;
 
 private:
     std::vector<vec3<double>> vertices;

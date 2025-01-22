@@ -29,7 +29,7 @@ public:
     BaseObject& operator=(BaseObject&& other) noexcept = default; // V. move assignment
 
     virtual double findRayObjectIntersection(Ray ray) = 0;
-    virtual double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) = 0;
+    virtual double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) = 0;
 
     std::shared_ptr<Material> mat() const { return material; }
     std::shared_ptr<Material> getMaterial() const { return material; }
