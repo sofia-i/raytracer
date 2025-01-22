@@ -24,7 +24,7 @@ public:
     
     vec3<double> getDirection() { return direction; }
     vec3<double> getOrigin() { return origin; }
-    vec3<double> getPointOnRay(double t) {
+    vec3<double> getPointOnRay(double t) const {
         return origin + t * direction;
     }
     

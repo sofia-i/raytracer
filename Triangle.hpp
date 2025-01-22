@@ -14,18 +14,9 @@
 
 class Triangle : public BaseObject {
 public:
-    Triangle(std::vector<vec3<double>> vertices, double kd, double ks, double ka,
-             vec3<double> objectColor, vec3<double> objectSpecular, double kgls, double refl):
-            BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, "") {
-        this->vertices = vertices;
-        calculatePlaneNormal();
-        distToOrigin = calculateDistToOrigin();
-    }
-    
-    Triangle(std::vector<vec3<double>> vertices, double kd, double ks, double ka,
-             vec3<double> objectColor, vec3<double> objectSpecular, double kgls, double refl, std::string description):
-            BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, description) {
-        this->vertices = vertices;
+    Triangle(std::vector<vec3<double>> vertices, std::shared_ptr<Material> mat, const std::string& description) :
+        BaseObject(mat, std::move(description)), vertices(vertices)
+    {
         calculatePlaneNormal();
         distToOrigin = calculateDistToOrigin();
     }

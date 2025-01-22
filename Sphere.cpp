@@ -49,6 +49,6 @@ double Sphere::findRayObjectIntersection(Ray ray) {
 double Sphere::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal) {
     double t = findRayObjectIntersection(ray);
     vec3<double> intersectPt = ray.getOrigin() + t * ray.getDirection();
-    intersectNormal = intersectPt - this->getCenter();
+    intersectNormal = getUnitVector(intersectPt - this->getCenter());
     return t;
 }

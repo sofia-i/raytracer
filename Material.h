@@ -1,0 +1,67 @@
+//
+// Created by Sofia Iannicelli on 1/21/25.
+//
+
+#ifndef RAYTRACER_2_MATERIAL_H
+#define RAYTRACER_2_MATERIAL_H
+
+#include "vec3.hpp"
+#include <sstream>
+
+class Material {
+public:
+    Material(double diffuseK, double specularK, double ambientK, double glsK,
+             vec3<double> diffuseColor, vec3<double> specularColor, double refl);
+
+    Material(double diffuseK, double specularK, double ambientK, double glsK,
+               vec3<double> diffuseColor, vec3<double> specularColor,
+               double refl, double ior, double refractionK);
+
+    double getDiffuseK() const { return diffuseK; }
+    double getSpecularK() const { return specularK; }
+    double getAmbientK() const { return ambientK; }
+    vec3<double> getDiffuseColor() const { return diffuseColor; }
+    vec3<double> getSpecularColor() const { return specularColor; }
+    double getGlsK() const { return glsK; }
+    double getRefl() const { return refl; }
+    bool getIsRefractive() const { return refractive; }
+    double getIOR() const { return ior; }
+    double getRefractionK() const { return refractionK; }
+
+    friend std::ostream& operator<<(std::ostream& os, const Material& mat) {
+        os << mat.toString();
+        return os;
+    }
+
+    virtual std::string toString() const {
+        std::string s;
+        std::stringstream ss(s);
+
+        ss << "\tKd: " << diffuseK << std::endl;
+        ss << "\tKs: " << specularK << std::endl;
+        ss << "\tKa: " << ambientK << std::endl;
+        ss << "\tObject Color: " << diffuseColor << std::endl;
+        ss << "\tObject specular: " << specularColor << std::endl;
+        ss << "\tKgls: " << glsK << std::endl;
+        ss << "\tReflectivity: " << refl << std::endl;
+
+        return ss.str();
+    }
+
+protected:
+    double diffuseK;  // diffuse coefficient
+    double specularK;  // specular coefficient
+    double ambientK;  // ambient coefficient
+    double glsK;  // gloss coefficient
+    vec3<double> diffuseColor;
+    vec3<double> specularColor;
+    double refl;
+
+    bool refractive;
+    double ior;
+    double refractionK;
+
+};
+
+
+#endif //RAYTRACER_2_MATERIAL_H

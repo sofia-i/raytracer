@@ -15,9 +15,8 @@ struct Face {
 
 class Mesh : public BaseObject {
 public:
-    Mesh(std::vector<vec3<double>> vertices, std::vector<Face> faces,
-         double kd, double ks, double ka, vec3<double> objectColor, vec3<double> objectSpecular,
-         double kgls, double refl, std::string description);
+    Mesh(std::vector<vec3<double>> vertices, std::vector<Face> faces, const std::shared_ptr<Material>& material,
+         std::string description);
 
     ~Mesh() override = default; // I. destructor
     Mesh(const Mesh& other) = default; // II. copy constructor

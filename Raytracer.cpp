@@ -10,6 +10,7 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 
 int*** Raytracer::raytrace(int numCols, int numRows) {
     // initialize pixelColors multi-dimensional array
@@ -45,7 +46,11 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
     return pixelColors;
 }
 
-bool Raytracer::getInShadow(Ray shadowRay) {
+bool Raytracer::getInShadow(const vec3<double>& intersectPt, const vec3<double>& toLight) {
+    vec3<double> shadowRayDirection = toLight;
+    vec3<double> shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
+    Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+
     bool inShadow = false;
     // go over all the objects to see if it hits any
     for(auto&& otherObj: scene.objects) {
@@ -55,49 +60,64 @@ bool Raytracer::getInShadow(Ray shadowRay) {
             break;
         }
     }
+
     return inShadow;
 }
 
-/* Compute illumination equation */
-// includes intensity from ambient, specular, diffuse
-// not from reflection, transmission
-vec3<int> Raytracer::illuminationEq(int objectIdx, const vec3<double> normal, const vec3<double> view,
-                                    const vec3<double> intersectPt) {
+inline vec3<double> Raytracer::getAmbient(int objectIdx) {
+    std::shared_ptr<Material> mat = scene.objects[objectIdx]->mat();
+    return mat->getAmbientK() * scene.getAmbientLight() * mat->getDiffuseColor();
+}
+
+inline vec3<double> Raytracer::getDiffuse(int objectIdx, const std::shared_ptr<Light>& light,
+                                          const vec3<double>& normal, const vec3<double>& toLight) {
+    return scene.objects[objectIdx]->mat()->getDiffuseK() * light->getLightColor() *
+        scene.objects[objectIdx]->mat()->getDiffuseColor() * std::max(0.0, dot(normal, toLight));
+}
+
+inline vec3<double> Raytracer::getSpecular(int objectIdx, const std::shared_ptr<Light>& light,
+                                           const vec3<double>& normal, const vec3<double>& toLight,
+                                           const vec3<double>& view) {
+    vec3<double> reflection = ((2 * (dot(normal, toLight))) * normal) - toLight;
+    double specularK = scene.objects[objectIdx]->mat()->getSpecularK();
+    double glsK = scene.objects[objectIdx]->mat()->getGlsK();
+    const vec3<double>& specularColor = scene.objects[objectIdx]->mat()->getSpecularColor();
+    return specularK * light->getLightColor() * specularColor *
+        std::pow(std::max(0.0, dot(view, reflection)), glsK);
+}
+
+/**
+ * Compute illumination equation
+ * includes intensity from ambient, specular, diffuse
+ * not from reflection, transmission
+ * @param objectIdx
+ * @param normal
+ * @param view
+ * @param intersectPt
+ * @return
+ */
+vec3<int> Raytracer::illuminationEq(int objectIdx, const vec3<double>& normal, const vec3<double>& view,
+                                    const vec3<double>& intersectPt) {
     // all the incoming vectors should be normalized
-    if(!(normal.isNormalized() && view.isNormalized())) {
-        std::cerr << "not normalized" << std::endl;
-    }
+    assert(normal.isNormalized() && view.isNormalized() && "normal and view rays should be normalized");
     vec3<int> colorResult;
-    vec3<double> colorSum;
+    vec3<double> colorSum(0.0, 0.0, 0.0);
 
     // compute ambient contribution
-    vec3<double> ambient = scene.objects[objectIdx]->getAmbientK() * scene.getAmbientLight() *
-            scene.objects[objectIdx]->getDiffuseColor();
-    colorSum = ambient;
+    colorSum += getAmbient(objectIdx);
 
     for(auto&& light : scene.lights) {
         vec3<double> toLight = light->getDirectionToLight(intersectPt);
 
         // compute shadow information
-        vec3<double> shadowRayDirection = toLight;
-        vec3<double> shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
-        Ray shadow_ray = Ray(shadowRayOrigin, shadowRayDirection);
-        bool inShadow = getInShadow(shadow_ray);
+        bool inShadow = getInShadow(intersectPt, toLight);
 
         // calculate intensity if not in shadow
         if(!inShadow) {
             // compute diffuse contribution
-            vec3<double> diffuse = scene.objects[objectIdx]->getDiffuseK() * light->getLightColor() *
-                    scene.objects[objectIdx]->getDiffuseColor() * std::max(0.0, dot(normal, toLight));
-
+            colorSum += getDiffuse(objectIdx, light, normal, toLight);
             // compute specular contribution
-            vec3<double> reflection = ((2 * (dot(normal, toLight))) * normal) - toLight;
-            double specularK = scene.objects[objectIdx]->getSpecularK();
-            double glsK = scene.objects[objectIdx]->getGlsK();
-            vec3<double> specular = specularK * light->getLightColor() * scene.objects[objectIdx]->getSpecularColor() *
-                    std::pow(std::max(0.0, dot(view, reflection)), glsK);
-
-            colorSum += diffuse + specular;
+            colorSum += getSpecular(objectIdx, light, normal, toLight, view);
         }
     }
 
@@ -113,20 +133,14 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
     return getRayResult(ray, 1);
 }
 
-vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
-    // if the maximum number of rays have been reached, this one will not contribute and stop recursion
-    if(rayCount > MAX_NUM_RAYS) {
-        return {0, 0, 0};
-    }
-    
-    // Find the closest object intersected by the ray
+Intersection Raytracer::getClosestIntersection(const Ray& ray) {
+    vec3<double> normal;
+
     int closestObjIdx = -1;
-    // BaseObject* closestIntersectObj = nullptr;
-    double intersectT = 0.0;  // ray-space intersection point
+    double intersectT;
     vec3<double> intersectPt;
     vec3<double> intersectNormal;
 
-    vec3<double> normal;
     // iterate over all objects to test each
     for(int i = 0; i < scene.objects.size(); ++i) {
         double t = scene.objects[i]->findRayObjectIntersection(ray, normal);
@@ -141,38 +155,51 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
             }
         }
     }
+
+    return Intersection(closestObjIdx, intersectT, intersectPt, intersectNormal);
+}
+
+vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
+    // if the maximum number of rays have been reached, this one will not contribute and stop recursion
+    if(rayCount > MAX_NUM_RAYS) {
+        return {0, 0, 0};
+    }
     
+    // Find the closest object intersected by the ray
+    Intersection hit = getClosestIntersection(ray);
+
     // If no object was intersected, return the background color
-    if(closestObjIdx == -1) {
+    if(hit.objIndex == -1) {
         return toIntVec3(255 * scene.getBackgroundColor());
     }
 
-    vec3<double> toView = getUnitVector(ray.getOrigin() - intersectPt);
-    vec3<int> primaryResult = illuminationEq(closestObjIdx, intersectNormal,
-                                             toView, intersectPt);
+    vec3<double> toView = getUnitVector(ray.getOrigin() - hit.point);
+    vec3<int> primaryResult = illuminationEq(hit.objIndex, hit.normal, toView, hit.point);
 
     vec3<int> refractionResult(0, 0, 0);
     // TODO: transmission
-    if(scene.objects[closestObjIdx]->getIsRefractive()) {
+    /*
+    if(scene.objects[closestObjIdx]->mat()->getIsRefractive()) {
         vec3<double> refractDirection;
         vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
         Ray refractionRay = Ray(refractOrigin, refractDirection);
         refractionResult += scene.objects[closestObjIdx]->getRefractionK() *
                 getRayResult(refractionRay, ++rayCount);
     }
+     */
 
     // combine reflection and refraction based on fresnel?
 
     // compute results from reflection
-    vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(intersectNormal, toView))) * intersectNormal) -
+    vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(hit.normal, toView))) * hit.normal) -
                                                      toView);
-    vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
+    vec3<double> reflectRayOrigin = hit.point + (EPSILON * reflectRayDirection);
     Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
 
-    vec3<int> reflectionResult = scene.objects[closestObjIdx]->getRefl() * getRayResult(reflectionRay, ++rayCount);
+    vec3<int> reflectionResult = scene.objects[hit.objIndex]->mat()->getRefl() *
+            getRayResult(reflectionRay, ++rayCount);
 
     // combine
-
     vec3<int> colorResult = primaryResult + reflectionResult + refractionResult;
 
     // make sure not to have overflow

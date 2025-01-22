@@ -18,7 +18,7 @@ class vec3 {
 public:
     T e[3];
 
-    vec3() { }
+    vec3() : e() {}
     vec3(T e0, T e1, T e2) {
         e[0] = e0; e[1] = e1, e[2] = e2;
     }

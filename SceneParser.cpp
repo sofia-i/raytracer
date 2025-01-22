@@ -74,6 +74,11 @@ Scene SceneParser::parseFile(std::string input_file_path) {
     // std::vector<Light*> lights;
 
     while(infile >> description) {
+        if(description == "#") {
+            std::cerr << "throwing away comment" << std::endl;
+            std::getline(infile, description);
+            continue;
+        }
         if(!strToElement.count(description)) {
             throw std::invalid_argument("didn't recognize " + description);
         }
@@ -190,11 +195,11 @@ std::shared_ptr<BaseObject> SceneParser::readInSphere(std::string obj_descriptio
     double refl;
     infile >> refl;
 
+    // create material
+    std::shared_ptr<Material> material = std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+                                                                    refl);
     // create sphere
-    return std::make_shared<Sphere>(center, radius, kd, ks, ka, objectColor, objectSpecular,
-                             kgls, refl, obj_description);
-    // return std::unique_ptr<BaseObject>(new Sphere(center, radius, kd, ks, ka, objectColor, objectSpecular,
-    //                                           kgls, refl, obj_description));
+    return std::make_shared<Sphere>(center, radius, material, obj_description);
 }
 
 std::shared_ptr<BaseObject> SceneParser::readInTriangle(std::string obj_description, std::ifstream& infile) {
@@ -233,12 +238,12 @@ std::shared_ptr<BaseObject> SceneParser::readInTriangle(std::string obj_descript
     double refl;
     infile >> refl;
 
+    // create material
+    std::shared_ptr<Material> material = std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+                                                                    refl);
+
     // create triangle
-    return std::make_shared<Triangle>(vertices, kd, ks, ka, objectColor, objectSpecular,
-                                      kgls, refl, obj_description);
-    // std::unique_ptr<BaseObject> triangle(new Triangle(vertices, kd, ks, ka, objectColor, objectSpecular,
-    //                                              kgls, refl, obj_description));
-    // return triangle;
+    return std::make_shared<Triangle>(vertices, material, obj_description);
 }
 
 std::shared_ptr<Light> SceneParser::readInDirectionalLight(std::ifstream& infile) {

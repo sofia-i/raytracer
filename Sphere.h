@@ -17,19 +17,8 @@ private:
     double radius;
 
 public:
-    Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
-           vec3<double> objectColor, vec3<double> objectSpecular,
-           double kgls, double refl) :
-            BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, "") {
-        this->center = center;
-        this->radius = radius;
-    }
-    Sphere(vec3<double> center, double radius, double kd, double ks, double ka,
-           vec3<double> objectColor, vec3<double> objectSpecular, double kgls, double refl, std::string description) :
-            BaseObject(kd, ks, ka, kgls, objectColor, objectSpecular, refl, description) {
-        this->center = center;
-        this->radius = radius;
-    }
+    Sphere(vec3<double> center, double radius, const std::shared_ptr<Material>& mat, const std::string& description) :
+        BaseObject(mat, std::move(description)), center(center), radius(radius) {}
 
     ~Sphere() override = default; // I. destructor
     Sphere(const Sphere& other) = default; // II. copy constructor

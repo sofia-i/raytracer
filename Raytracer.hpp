@@ -29,6 +29,16 @@ struct WorldSpaceCoord {
                             uAxis(uAxis), vAxis(vAxis) {}
 };
 
+struct Intersection {
+    Intersection(int objIndex, double t, const vec3<double>& intersectPt, const vec3<double>& normal) :
+            objIndex(objIndex), t(t), point(intersectPt), normal(normal) {}
+
+    int objIndex;
+    double t;
+    vec3<double> point;
+    vec3<double> normal;
+};
+
 class Raytracer {
 public:
     explicit Raytracer(Scene scene) : scene(scene), raysPerPixelPerSide(2) { }
@@ -64,11 +74,19 @@ private:
     vec3<int> getRayResult(vec3<double> target);
     vec3<int> getRayResult(Ray ray, int rayCount);
 
-    bool getInShadow(Ray shadowRay);
+    Intersection getClosestIntersection(const Ray& ray);
+    bool getInShadow(const vec3<double>& intersectPt, const vec3<double>& toLight);
 
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
-    vec3<int> illuminationEq(int objectIdx, vec3<double> normal, vec3<double> view,
-                             const vec3<double> intersectPt);
+    vec3<int> illuminationEq(int objectIdx, const vec3<double>& normal, const vec3<double>& view,
+                             const vec3<double>& intersectPt);
+
+    inline vec3<double> getAmbient(int objectIdx);
+    inline vec3<double> getDiffuse(int objectIdx, const std::shared_ptr<Light>& light,
+                                   const vec3<double>& normal, const vec3<double>& toLight);
+    inline vec3<double> getSpecular(int objectIdx, const std::shared_ptr<Light>& light,
+                                    const vec3<double>& normal, const vec3<double>& toLight,
+                                    const vec3<double>& view);
     
 };
 
