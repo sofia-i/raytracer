@@ -55,7 +55,7 @@ double Sphere::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal,
         vec3<double> intersectPt = ray.getOrigin() + t * ray.getDirection();
         intersectNormal = getUnitVector(intersectPt - this->getCenter());
         // determine back face (if inside)
-        if((intersectPt - center).length() < radius) {
+        if((ray.getOrigin() - center).length() < radius) {
             backFace = true;
         }
         else {
