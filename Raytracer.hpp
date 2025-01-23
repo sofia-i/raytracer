@@ -66,8 +66,6 @@ private:
 
     // TODO: should scene be a member?
     Scene scene;
-    // int numCols;
-    // int numRows;
 
     /**
      *
@@ -103,8 +101,6 @@ private:
                                   std::stack<double>& iors);
     double getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD, const double matRefl,
                                const double& iorIn, const double& iorOut, const double& iorRatio);
-    // double getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD,
-    //                            const double& iorIn, const double& iorOut, const double& iorRatio);
 };
 
 #endif /* Raytracer_hpp */

@@ -181,29 +181,6 @@ void Raytracer::getIorAcrossIntersection(int objIdx, bool isBackFace, double& io
     }
 }
 
-/*
-double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD,
-                                      const double& iorIn, const double& iorOut, const double& iorRatio) {
-    double cosIn = dot(normal, rayD); // TODO: clamp to 1?
-    if(cosIn < 0) {
-        // outside
-        cosIn = -cosIn;
-    }
-    double sinIn = sqrt(1.0 - cosIn * cosIn);
-    double sinOut = iorRatio * sinIn;
-
-    if(sinOut > 1.0) { // Total Internal Reflection
-        return 1;
-    }
-    else {
-        double cosOut = sqrt(1.0 - sinOut * sinOut);
-        double kReflP = (iorIn * cosOut - iorOut * cosIn) / (iorIn * cosOut + iorOut * cosIn);
-        double kReflS = (iorIn * cosIn - iorOut * cosOut) / (iorIn * cosIn + iorOut * cosOut);
-        return 0.5 * (kReflP * kReflP + kReflS * kReflS);
-    }
-}
- */
-
 double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD, const double matRefl,
                                       const double& iorIn, const double& iorOut, const double& iorRatio) {
     // Schlick’s approximation https://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/
@@ -242,13 +219,10 @@ inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<
         // inside
         normalRef = -normal;
     }
+    // Find parallel and orthogonal portions of refraction direction
     vec3<double> refractDirP = iorRatio * (rayD + cosIn * normalRef);
     vec3<double> refractDirS = - std::sqrt(1. - std::pow(refractDirP.length(), 2)) * normalRef;
-    /*
-    vec3<double> refractDirection = iorRatio * -rayD +
-                                    (iorRatio * cosIn * normal) -
-                                    sqrt(1 - pow(iorRatio, 2) * (1 - pow(cosIn, 2))) * normal;
-                                    */
+
     vec3<double> refractDirection = refractDirP + refractDirS;
     vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
     return Ray(refractOrigin, refractDirection);
@@ -292,7 +266,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
     colorResult += primaryResult;
 
     vec3<int> refractionResult(0, 0, 0);
-    // TODO: transmission
+    // Refraction & reflection
     if(scene.objects[hit.objIndex]->mat()->getIsRefractive()) {
         // find iorRatio (eta)
         double iorRatio;
@@ -303,7 +277,6 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
         double kTran = 0;
         double kRefl = getPortionReflected(hit.normal, ray.getDirection(),
                                            scene.objects[hit.objIndex]->mat()->getRefl(), iorIn, iorOut, iorRatio);
-        // double kRefl = std::max(kReflFresnel, scene.objects[hit.objIndex]->mat()->getRefl());  // https://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/#:~:text=At%20minimum%20the%20reflectivity%20will%20be%20the%20reflectivity%20of%20the%20surface%2C%20and%20at%20maximum%20the%20reflectivity%20will%20be%20100%25.
         if(kRefl < 1) {
             // compute refraction
             kTran = 1.0 - kRefl;
@@ -316,6 +289,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
         // combine reflection and refraction based on fresnel equations
         colorResult += kRefl * reflectionResult + kTran * refractionResult;
     }
+    // Reflection (no refraction)
     else {
         vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount, iors);
         colorResult += reflectionResult;
@@ -339,7 +313,6 @@ WorldSpaceCoord Raytracer::calculateWorldSpaceCoords(int numCols, int numRows) {
     
     // calculate the u and v axes
     vec3<double> uAxis = getUnitVector(cross(viewRay, camera.getCameraLookUp()));
-    // v_axis = getUnitVector(cross(view_ray, u_axis));
     vec3<double> vAxis = getUnitVector(cross(uAxis, viewRay));
     
     // calculate the u and v increments for a change in pixel

@@ -76,8 +76,6 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
     std::vector<std::shared_ptr<BaseObject>> objects;
     std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<Material>> materials;
-    // std::vector<BaseObject*> objects;
-    // std::vector<Light*> lights;
 
     while(infile >> description) {
         if(description == "#") {
@@ -115,7 +113,6 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
             }
             case DIRECTIONAL_LIGHT: {
                 lights.push_back(std::move(readInDirectionalLight(infile)));
-                // lights.push_back(readInDirectionalLight(infile));
                 break;
             }
             case POINT_LIGHT: {
@@ -142,7 +139,6 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
                 else if(elem == TRIANGLE) {
                     objects.push_back(std::move(readInTriangle(obj_description, infile, materials)));
                 }
-                // objects.push_back(std::move(object));
                 break;
             }
             default:
@@ -228,7 +224,6 @@ std::shared_ptr<Light> SceneParser::readInDirectionalLight(std::ifstream& infile
     vec3<double> to_light = readInVector(infile);
 
     return std::make_shared<DirectionalLight>(light_color, to_light);
-    // return std::unique_ptr<Light>(new DirectionalLight(light_color, to_light));
 }
 
 std::shared_ptr<Light> SceneParser::readInPointLight(std::ifstream& infile) {
@@ -239,7 +234,6 @@ std::shared_ptr<Light> SceneParser::readInPointLight(std::ifstream& infile) {
     vec3<double> position = readInVector(infile);
 
     return std::make_shared<PointLight>(light_color, position);
-    // return std::unique_ptr<Light>(new PointLight(light_color, position));
 }
 
 std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {

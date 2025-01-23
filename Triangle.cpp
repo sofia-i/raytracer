@@ -22,10 +22,10 @@ void Triangle::calculatePlaneNormal() {
 }
 
 double Triangle::findRayObjectIntersection(Ray ray) {
-    // check if the ray intersects the plane containing the triangle
+    /*
+     * check if the ray intersects the plane containing the triangle
+     */
 
-    // vec3<double> vertex = vertices.at(0);
-    // double d = -a * vertex.x() - b * vertex.y() - c * vertex.z();
     double d = calculateDistToOrigin();
 
     // extract out the ray info
