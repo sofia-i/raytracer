@@ -55,7 +55,8 @@ bool Raytracer::getInShadow(const vec3<double>& intersectPt, const vec3<double>&
     // go over all the objects to see if it hits any
     for(auto&& otherObj: scene.objects) {
         double t = otherObj->findRayObjectIntersection(shadowRay);
-        if(t > 0 && !(otherObj->mat()->getIsRefractive())) {  // FIXME
+        bool transparent = otherObj->mat()->getIsRefractive() && otherObj->mat()->getRefractionK() > 0.5;
+        if(t > 0 && !transparent) {  // FIXME
             inShadow = true;
             break;
         }
@@ -237,6 +238,9 @@ inline vec3<int> Raytracer::getTransmission(int objectIdx, const vec3<double>& n
 
 inline vec3<int> Raytracer::getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
                                const vec3<double>& intersectPt, int rayCount, std::stack<double>& iors) {
+    if(scene.objects[objectIdx]->mat()->getRefl() == 0) {
+        return {0, 0, 0};
+    }
     vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(normal, toView))) * normal) -
                                                      toView);
     vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
