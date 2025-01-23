@@ -28,4 +28,6 @@ add_executable(raytracer_2
         Mesh.h
         Utils.h
         Material.cpp
-        Material.h)
+        Material.h
+        Cylinder.cpp
+        Cylinder.h)
