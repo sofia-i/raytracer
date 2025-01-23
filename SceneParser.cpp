@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <vector>
+#include <cassert>
 #include "Sphere.h"
 #include "Triangle.hpp"
 #include "vec3.hpp"
@@ -24,6 +25,8 @@ SceneParser::SceneParser() {
     strToElement["BackgroundColor"] = BACKGROUND_COLOR;
     strToElement["Sphere"] = SPHERE;
     strToElement["Triangle"] = TRIANGLE;
+    strToElement["Material"] = MATERIAL;
+    strToElement["RefractiveMaterial"] = REFRACTIVE_MATERIAL;
 
     elemToStr[CAMERA_LOOK_AT] = "CameraLookAt";
     elemToStr[CAMERA_LOOK_FROM] = "CameraLookFrom";
@@ -35,6 +38,8 @@ SceneParser::SceneParser() {
     elemToStr[BACKGROUND_COLOR] = "BackgroundColor";
     elemToStr[SPHERE] = "Sphere";
     elemToStr[TRIANGLE] = "Triangle";
+    elemToStr[MATERIAL] = "Material";
+    elemToStr[REFRACTIVE_MATERIAL] = "RefractiveMaterial";
 }
 
 vec3<double> SceneParser::readInVector(std::ifstream& infile){
@@ -45,7 +50,7 @@ vec3<double> SceneParser::readInVector(std::ifstream& infile){
     return {x, y, z};
 }
 
-Scene SceneParser::parseFile(std::string input_file_path) {
+Scene SceneParser::parseFile(const std::string& input_file_path) {
     std::ifstream infile;
     infile.open(input_file_path);
     if(!infile.is_open()) {
@@ -70,6 +75,7 @@ Scene SceneParser::parseFile(std::string input_file_path) {
     vec3<double> background_color;
     std::vector<std::shared_ptr<BaseObject>> objects;
     std::vector<std::shared_ptr<Light>> lights;
+    std::vector<std::shared_ptr<Material>> materials;
     // std::vector<BaseObject*> objects;
     // std::vector<Light*> lights;
 
@@ -120,14 +126,21 @@ Scene SceneParser::parseFile(std::string input_file_path) {
                 background_color = readInVector(infile);
                 break;
             }
+            case MATERIAL: {
+                materials.push_back(std::move(readInMaterial(infile)));
+                break;
+            }
+            case REFRACTIVE_MATERIAL: {
+                materials.push_back(std::move(readInRefractiveMaterial(infile)));
+                break;
+            }
             case SPHERE: case TRIANGLE: {
                 std::string obj_description;
-                std::unique_ptr<BaseObject> object;
                 if(elem == SPHERE) {
-                    objects.push_back(std::move(readInSphere(obj_description, infile)));
+                    objects.push_back(std::move(readInSphere(obj_description, infile, materials)));
                 }
                 else if(elem == TRIANGLE) {
-                    objects.push_back(std::move(readInTriangle(obj_description, infile)));
+                    objects.push_back(std::move(readInTriangle(obj_description, infile, materials)));
                 }
                 // objects.push_back(std::move(object));
                 break;
@@ -160,7 +173,8 @@ Scene SceneParser::parseFile(std::string input_file_path) {
     return scene;
 }
 
-std::shared_ptr<BaseObject> SceneParser::readInSphere(std::string obj_description, std::ifstream& infile) {
+std::shared_ptr<BaseObject> SceneParser::readInSphere(const std::string& obj_description, std::ifstream& infile,
+                                                      const std::vector<std::shared_ptr<Material>>& mats) {
     std::string description;
     infile >> description;
     vec3<double> center = readInVector(infile);
@@ -170,39 +184,20 @@ std::shared_ptr<BaseObject> SceneParser::readInSphere(std::string obj_descriptio
     infile >> radius;
 
     infile >> description;
-    double kd;
-    infile >> kd;
+    int matIdx;
+    infile >> matIdx;
 
-    infile >> description;
-    double ks;
-    infile >> ks;
+    if(matIdx < 0 || matIdx >= mats.size()) {
+        std::cerr << "Material index " << matIdx << " invalid. Defaulting to 0." << std::endl;
+        matIdx = 0;
+    }
 
-    infile >> description;
-    double ka;
-    infile >> ka;
-
-    infile >> description;
-    vec3<double> objectColor = readInVector(infile);
-
-    infile >> description;
-    vec3<double> objectSpecular = readInVector(infile);
-
-    infile >> description;
-    double kgls;
-    infile >> kgls;
-    
-    infile >> description;
-    double refl;
-    infile >> refl;
-
-    // create material
-    std::shared_ptr<Material> material = std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
-                                                                    refl);
     // create sphere
-    return std::make_shared<Sphere>(center, radius, material, obj_description);
+    return std::make_shared<Sphere>(center, radius, mats[matIdx], obj_description);
 }
 
-std::shared_ptr<BaseObject> SceneParser::readInTriangle(std::string obj_description, std::ifstream& infile) {
+std::shared_ptr<BaseObject> SceneParser::readInTriangle(const std::string& obj_description, std::ifstream& infile,
+                                                        const std::vector<std::shared_ptr<Material>>& mats) {
     std::string description;
     
     // take in the vertices
@@ -213,37 +208,16 @@ std::shared_ptr<BaseObject> SceneParser::readInTriangle(std::string obj_descript
     }
 
     infile >> description;
-    double kd;
-    infile >> kd;
+    int matIdx;
+    infile >> matIdx;
 
-    infile >> description;
-    double ks;
-    infile >> ks;
-
-    infile >> description;
-    double ka;
-    infile >> ka;
-
-    infile >> description;
-    vec3<double> objectColor = readInVector(infile);
-
-    infile >> description;
-    vec3<double> objectSpecular = readInVector(infile);
-
-    infile >> description;
-    double kgls;
-    infile >> kgls;
-    
-    infile >> description;
-    double refl;
-    infile >> refl;
-
-    // create material
-    std::shared_ptr<Material> material = std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
-                                                                    refl);
+    if(matIdx < 0 || matIdx >= mats.size()) {
+        std::cerr << "Material index " << matIdx << " invalid. Defaulting to 0." << std::endl;
+        matIdx = 0;
+    }
 
     // create triangle
-    return std::make_shared<Triangle>(vertices, material, obj_description);
+    return std::make_shared<Triangle>(vertices, mats[matIdx], obj_description);
 }
 
 std::shared_ptr<Light> SceneParser::readInDirectionalLight(std::ifstream& infile) {
@@ -266,4 +240,79 @@ std::shared_ptr<Light> SceneParser::readInPointLight(std::ifstream& infile) {
 
     return std::make_shared<PointLight>(light_color, position);
     // return std::unique_ptr<Light>(new PointLight(light_color, position));
+}
+
+std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
+    std::string description;
+
+    infile >> description;
+    double kd;
+    infile >> kd;
+
+    infile >> description;
+    double ks;
+    infile >> ks;
+
+    infile >> description;
+    double ka;
+    infile >> ka;
+
+    infile >> description;
+    vec3<double> objectColor = readInVector(infile);
+
+    infile >> description;
+    vec3<double> objectSpecular = readInVector(infile);
+
+    infile >> description;
+    double kgls;
+    infile >> kgls;
+
+    infile >> description;
+    double refl;
+    infile >> refl;
+
+    // create material
+    return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+                                                                    refl);
+}
+
+std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& infile) {
+    std::string description;
+
+    infile >> description;
+    double kd;
+    infile >> kd;
+
+    infile >> description;
+    double ks;
+    infile >> ks;
+
+    infile >> description;
+    double ka;
+    infile >> ka;
+
+    infile >> description;
+    vec3<double> objectColor = readInVector(infile);
+
+    infile >> description;
+    vec3<double> objectSpecular = readInVector(infile);
+
+    infile >> description;
+    double kgls;
+    infile >> kgls;
+
+    infile >> description;
+    double refl;
+    infile >> refl;
+
+    infile >> description;
+    double ior;
+    infile >> ior;
+
+    infile >> description;
+    double refractionK;
+    infile >> refractionK;
+
+    return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+                                      refl, ior, refractionK);
 }

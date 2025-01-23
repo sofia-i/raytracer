@@ -24,22 +24,28 @@ enum SceneElement {
     POINT_LIGHT,
     BACKGROUND_COLOR,
     SPHERE,
-    TRIANGLE
+    TRIANGLE,
+    MATERIAL,
+    REFRACTIVE_MATERIAL
 };
 
 class SceneParser {
 public:
     SceneParser();
 
-    Scene parseFile(std::string inputFilePath);
+    Scene parseFile(const std::string& inputFilePath);
 
 private:
     std::unordered_map<std::string, SceneElement> strToElement;
     std::unordered_map<SceneElement, std::string> elemToStr;
 
-    vec3<double> readInVector(std::ifstream& infile);
-    std::shared_ptr<BaseObject> readInSphere(std::string obj_description, std::ifstream& infile);
-    std::shared_ptr<BaseObject> readInTriangle(std::string obj_description, std::ifstream& infile);
+    static vec3<double> readInVector(std::ifstream& infile);
+    std::shared_ptr<BaseObject> readInSphere(const std::string& obj_description, std::ifstream& infile,
+                                             const std::vector<std::shared_ptr<Material>>& mats);
+    std::shared_ptr<BaseObject> readInTriangle(const std::string& obj_description, std::ifstream& infile,
+                                               const std::vector<std::shared_ptr<Material>>& mats);
+    std::shared_ptr<Material> readInMaterial(std::ifstream& infile);
+    std::shared_ptr<Material> readInRefractiveMaterial(std::ifstream& infile);
     std::shared_ptr<Light> readInDirectionalLight(std::ifstream& infile);
     std::shared_ptr<Light> readInPointLight(std::ifstream& infile);
 };
