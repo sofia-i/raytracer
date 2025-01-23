@@ -12,6 +12,7 @@
 #include <cassert>
 #include "Sphere.h"
 #include "Triangle.hpp"
+#include "Cylinder.h"
 #include "vec3.hpp"
 
 SceneParser::SceneParser() {
@@ -27,6 +28,7 @@ SceneParser::SceneParser() {
     strToElement["Triangle"] = TRIANGLE;
     strToElement["Material"] = MATERIAL;
     strToElement["RefractiveMaterial"] = REFRACTIVE_MATERIAL;
+    strToElement["Cylinder"] = CYLINDER;
 
     elemToStr[CAMERA_LOOK_AT] = "CameraLookAt";
     elemToStr[CAMERA_LOOK_FROM] = "CameraLookFrom";
@@ -40,6 +42,7 @@ SceneParser::SceneParser() {
     elemToStr[TRIANGLE] = "Triangle";
     elemToStr[MATERIAL] = "Material";
     elemToStr[REFRACTIVE_MATERIAL] = "RefractiveMaterial";
+    elemToStr[CYLINDER] = "Cylinder";
 }
 
 vec3<double> SceneParser::readInVector(std::ifstream& infile){
@@ -131,14 +134,19 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
                 materials.push_back(std::move(readInRefractiveMaterial(infile)));
                 break;
             }
-            case SPHERE: case TRIANGLE: {
+            case SPHERE: {
                 std::string obj_description;
-                if(elem == SPHERE) {
-                    objects.push_back(std::move(readInSphere(obj_description, infile, materials)));
-                }
-                else if(elem == TRIANGLE) {
-                    objects.push_back(std::move(readInTriangle(obj_description, infile, materials)));
-                }
+                objects.push_back(std::move(readInSphere(obj_description, infile, materials)));
+                break;
+            }
+            case TRIANGLE: {
+                std::string obj_description;
+                objects.push_back(std::move(readInTriangle(obj_description, infile, materials)));
+                break;
+            }
+            case CYLINDER: {
+                std::string obj_description;
+                objects.push_back(std::move(readInCylinder(obj_description, infile, materials)));
                 break;
             }
             default:
@@ -214,6 +222,25 @@ std::shared_ptr<BaseObject> SceneParser::readInTriangle(const std::string& obj_d
 
     // create triangle
     return std::make_shared<Triangle>(vertices, mats[matIdx], obj_description);
+}
+
+std::shared_ptr<BaseObject> SceneParser::readInCylinder(const std::string& obj_description, std::ifstream& infile,
+                                                        const std::vector<std::shared_ptr<Material>>& mats) {
+    std::string description;
+
+    vec3<double> capCenter1 = readInVector(infile);
+    vec3<double> capCenter2 = readInVector(infile);
+
+    infile >> description;
+    double radius;
+    infile >> radius;
+
+    infile >> description;
+    int matIdx;
+    infile >> matIdx;
+
+    // create cylinder
+    return std::make_shared<Cylinder>(capCenter1, capCenter2, radius, mats[matIdx], obj_description);
 }
 
 std::shared_ptr<Light> SceneParser::readInDirectionalLight(std::ifstream& infile) {
