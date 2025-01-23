@@ -55,7 +55,7 @@ bool Raytracer::getInShadow(const vec3<double>& intersectPt, const vec3<double>&
     // go over all the objects to see if it hits any
     for(auto&& otherObj: scene.objects) {
         double t = otherObj->findRayObjectIntersection(shadowRay);
-        if(t > 0) {
+        if(t > 0 && !(otherObj->mat()->getIsRefractive())) {  // FIXME
             inShadow = true;
             break;
         }
@@ -130,7 +130,9 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
     vec3<double> rayOrigin = scene.getCamera().getLookFrom();
     vec3<double> rayDirection = target - rayOrigin;
     Ray ray = Ray(rayOrigin, rayDirection);
-    return getRayResult(ray, 1);
+    std::stack<double> iors;
+    iors.push(scene.getAmbientIor());
+    return getRayResult(ray, 1, iors);
 }
 
 Intersection Raytracer::getClosestIntersection(const Ray& ray) {
@@ -162,25 +164,31 @@ Intersection Raytracer::getClosestIntersection(const Ray& ray) {
     return Intersection(closestObjIdx, intersectT, intersectPt, intersectNormal, intersectIsBackFace);
 }
 
-void Raytracer::getIorAcrossIntersection(int objIdx, bool isBackFace, double& iorIn, double& iorOut, double& iorRatio) {
+void Raytracer::getIorAcrossIntersection(int objIdx, bool isBackFace, double& iorIn, double& iorOut, double& iorRatio,
+                                         std::stack<double>& iors) {
     if(isBackFace && iors.size() > 1) {
         // coming out of material
         iorIn = iors.top();
         iors.pop();
         iorOut = iors.top();
-        iorRatio = iorOut / iorIn;
+        iorRatio = iorIn / iorOut;
     }
     else {
         iorIn = iors.top();
         iorOut = scene.objects[objIdx]->mat()->getIOR();
-        iorRatio = iorOut / iorIn;
+        iorRatio = iorIn / iorOut;
         iors.push(iorOut);
     }
 }
 
+/*
 double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD,
                                       const double& iorIn, const double& iorOut, const double& iorRatio) {
     double cosIn = dot(normal, rayD); // TODO: clamp to 1?
+    if(cosIn < 0) {
+        // outside
+        cosIn = -cosIn;
+    }
     double sinIn = sqrt(1.0 - cosIn * cosIn);
     double sinOut = iorRatio * sinIn;
 
@@ -189,39 +197,81 @@ double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<dou
     }
     else {
         double cosOut = sqrt(1.0 - sinOut * sinOut);
-        double kRefl1 = (iorOut * cosIn - iorIn * cosOut) / (iorOut * cosIn + iorIn * cosOut);
-        double kRefl2 = (iorIn * cosOut - iorOut * cosIn) / (iorIn * cosOut + iorOut * cosIn);
-        return 0.5 * (kRefl1 * kRefl1 + kRefl2 * kRefl2);
+        double kReflP = (iorIn * cosOut - iorOut * cosIn) / (iorIn * cosOut + iorOut * cosIn);
+        double kReflS = (iorIn * cosIn - iorOut * cosOut) / (iorIn * cosIn + iorOut * cosOut);
+        return 0.5 * (kReflP * kReflP + kReflS * kReflS);
     }
+}
+ */
+
+double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD, const double matRefl,
+                                      const double& iorIn, const double& iorOut, const double& iorRatio) {
+    // Schlick’s approximation https://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/
+    double r0 = (iorIn - iorOut) / (iorIn + iorOut);
+    r0 *= r0;
+    double cosIn = -dot(normal, rayD);
+    // account for backface
+    if(cosIn < 0) {
+        cosIn = -cosIn;
+    }
+    if(iorIn > iorOut) {
+        double n = iorIn / iorOut;
+        double sinOutSq = n * n * (1.0 - cosIn * cosIn);
+        if(sinOutSq > 1.0) {
+            return 1;
+        }
+        cosIn = sqrt(1.0 - sinOutSq);  // FIXME?
+    }
+    double cosTerm = (1 - cosIn);
+    double reflFresnel = r0 + (1. - r0)*(cosTerm * cosTerm * cosTerm * cosTerm * cosTerm);
+    if(reflFresnel > 1.0) {
+        std::cerr << "gt one" << std::endl;
+    }
+    return matRefl + (1. - matRefl) * reflFresnel;
 }
 
 inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<double>& rayD,
-                                         const vec3<double>& intersectPt, const double iorRatio) {
+                                         const vec3<double>& intersectPt, const double iorRatio) const {
     double cosIn = dot(normal, rayD);
-    vec3<double> refractDirection = iorRatio * rayD +
+    vec3<double> normalRef = normal;
+    if(cosIn < 0) {
+        // outside
+        cosIn = -cosIn;
+    }
+    else {
+        // inside
+        normalRef = -normal;
+    }
+    vec3<double> refractDirP = iorRatio * (rayD + cosIn * normalRef);
+    vec3<double> refractDirS = - std::sqrt(1. - std::pow(refractDirP.length(), 2)) * normalRef;
+    /*
+    vec3<double> refractDirection = iorRatio * -rayD +
                                     (iorRatio * cosIn * normal) -
                                     sqrt(1 - pow(iorRatio, 2) * (1 - pow(cosIn, 2))) * normal;
+                                    */
+    vec3<double> refractDirection = refractDirP + refractDirS;
     vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
     return Ray(refractOrigin, refractDirection);
 }
 
 inline vec3<int> Raytracer::getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
-                                    const vec3<double>& intersectPt, double iorRatio, int rayCount) {
+                                    const vec3<double>& intersectPt, double iorRatio, int rayCount,
+                                    std::stack<double>& iors) {
     Ray transmissionRay = getTransmissionRay(normal, rayD, intersectPt, iorRatio);
-    return scene.objects[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount);
+    return scene.objects[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount, iors);
 }
 
 inline vec3<int> Raytracer::getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
-                               const vec3<double>& intersectPt, int rayCount) {
+                               const vec3<double>& intersectPt, int rayCount, std::stack<double>& iors) {
     vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(normal, toView))) * normal) -
                                                      toView);
     vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
     Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
 
-    return scene.objects[objectIdx]->mat()->getRefl() * getRayResult(reflectionRay, ++rayCount);
+    return scene.objects[objectIdx]->mat()->getRefl() * getRayResult(reflectionRay, ++rayCount, iors);
 }
 
-vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
+vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& iors) {
     // if the maximum number of rays have been reached, this one will not contribute and stop recursion
     if(rayCount > MAX_NUM_RAYS) {
         return {0, 0, 0};
@@ -248,24 +298,26 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount) {
         double iorRatio;
         double iorIn;
         double iorOut;
-        getIorAcrossIntersection(hit.objIndex, hit.backFace, iorIn, iorOut, iorRatio);
+        getIorAcrossIntersection(hit.objIndex, hit.backFace, iorIn, iorOut, iorRatio, iors);
 
         double kTran = 0;
-        double kRefl = getPortionReflected(hit.normal, ray.getDirection(), iorIn, iorOut, iorRatio);
+        double kRefl = getPortionReflected(hit.normal, ray.getDirection(),
+                                           scene.objects[hit.objIndex]->mat()->getRefl(), iorIn, iorOut, iorRatio);
+        // double kRefl = std::max(kReflFresnel, scene.objects[hit.objIndex]->mat()->getRefl());  // https://blog.demofox.org/2017/01/09/raytracing-reflection-refraction-fresnel-total-internal-reflection-and-beers-law/#:~:text=At%20minimum%20the%20reflectivity%20will%20be%20the%20reflectivity%20of%20the%20surface%2C%20and%20at%20maximum%20the%20reflectivity%20will%20be%20100%25.
         if(kRefl < 1) {
             // compute refraction
             kTran = 1.0 - kRefl;
-            refractionResult = getTransmission(hit.objIndex, hit.normal, toView, hit.point, iorRatio,
-                                               rayCount);
+            refractionResult = getTransmission(hit.objIndex, hit.normal, ray.getDirection(), hit.point, iorRatio,
+                                               rayCount, iors);
         }
         // compute results from reflection
-        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount);
+        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount, iors);
 
         // combine reflection and refraction based on fresnel equations
         colorResult += kRefl * reflectionResult + kTran * refractionResult;
     }
     else {
-        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount);
+        vec3<int> reflectionResult = getReflection(hit.objIndex, hit.normal, toView, hit.point, rayCount, iors);
         colorResult += reflectionResult;
     }
 
