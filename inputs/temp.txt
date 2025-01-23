@@ -1,0 +1,42 @@
+CameraLookAt 0 0 0
+CameraLookFrom 0 0 0.5
+CameraLookUp 0 1 0
+FieldOfView 90
+
+AmbientLight 0.0 0.0 0.0
+BackgroundColor 0.2 0.2 0.2
+
+DirectionalLight
+    LightColor 1.0 1.0 1.0
+    DirectionToLight 0.0 0.0 2.0
+
+RefractiveMaterial
+    Kd 0.0
+    Ks 0.0
+    Ka 0.0
+    Od 0.1 0.75 0.75
+    Os 1.0 1.0 1.0
+    Kgls 10.0
+    Refl 0.0
+    ior 1.2
+    Kt 1.0
+
+Material
+    Kd 0.4
+    Ks 0.1
+    Ka 0.1
+    Od 0.1 0.75 0.75
+    Os 1.0 1.0 1.0
+    Kgls 10.0
+    Refl .0
+
+Sphere
+    Center 0.0 0.3 -1.0
+    Radius 0.5
+    Material 0
+
+Triangle
+    -0.5 -0.5 -1.51
+    0.0 1.4 -1.51
+    0.5 -0.5 -1.51
+    Material 1
