@@ -25,13 +25,14 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
     WorldSpaceCoord worldCoords  = calculateWorldSpaceCoords(numCols, numRows);
     
     // handle each pixel
+    double invRPPPS = 1. / raysPerPixelPerSide;
     for(int i = 0; i < numRows; ++i) {
         for(int j = 0; j < numCols; ++j) {
             vec3<int> pixelColor(0, 0, 0);
             for(int m = 0; m < raysPerPixelPerSide; ++m) {
                 for(int n = 0; n < raysPerPixelPerSide; ++n) {
-                    double uCoord = ((j - 1.) + ((double(m)+1) / raysPerPixelPerSide)) * worldCoords.uInc;
-                    double vCoord = ((i - 1.) + ((double(n)+1) / raysPerPixelPerSide)) * worldCoords.vInc;
+                    double uCoord = ((j + 0.5 * invRPPPS) + ((double(m)) * invRPPPS)) * worldCoords.uInc;
+                    double vCoord = ((i + 0.5 * invRPPPS) + ((double(n)) * invRPPPS)) * worldCoords.vInc;
                     pixelColor += getRayResult((uCoord - worldCoords.maxU) * worldCoords.uAxis +
                                                (worldCoords.maxV - vCoord) * worldCoords.vAxis);
                 }
