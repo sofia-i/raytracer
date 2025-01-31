@@ -11,6 +11,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include "Utils.h"
 
 int*** Raytracer::raytrace(int numCols, int numRows) {
     // initialize pixelColors multi-dimensional array
@@ -23,16 +24,22 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
     }
 
     WorldSpaceCoord worldCoords  = calculateWorldSpaceCoords(numCols, numRows);
-    
-    // handle each pixel
+
+    // random helper
     double invRPPPS = 1. / raysPerPixelPerSide;
+    RandomNumber randNum;
+    std::uniform_real_distribution<double> dist = randNum.get_dist(-0.5, 0.5);
+
+    // handle each pixel
     for(int i = 0; i < numRows; ++i) {
         for(int j = 0; j < numCols; ++j) {
             vec3<int> pixelColor(0, 0, 0);
             for(int m = 0; m < raysPerPixelPerSide; ++m) {
                 for(int n = 0; n < raysPerPixelPerSide; ++n) {
-                    double uCoord = ((j + 0.5 * invRPPPS) + ((double(m)) * invRPPPS)) * worldCoords.uInc;
-                    double vCoord = ((i + 0.5 * invRPPPS) + ((double(n)) * invRPPPS)) * worldCoords.vInc;
+                    double jitterU = randNum.get_random_double_from_dist(dist);
+                    double jitterV = randNum.get_random_double_from_dist(dist);
+                    double uCoord = ((j + 0.5 * invRPPPS) + ((double(m) + jitterU) * invRPPPS)) * worldCoords.uInc;
+                    double vCoord = ((i + 0.5 * invRPPPS) + ((double(n) + jitterV) * invRPPPS)) * worldCoords.vInc;
                     pixelColor += getRayResult((uCoord - worldCoords.maxU) * worldCoords.uAxis +
                                                (worldCoords.maxV - vCoord) * worldCoords.vAxis);
                 }
