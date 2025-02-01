@@ -78,7 +78,7 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
     double fov;
     vec3<double> ambient_light;
     vec3<double> background_color;
-    std::vector<std::shared_ptr<BaseObject>> objects;
+    std::vector<std::shared_ptr<Geometry>> geo;
     std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<Material>> materials;
 
@@ -142,17 +142,17 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
             }
             case SPHERE: {
                 std::string obj_description;
-                objects.push_back(std::move(readInSphere(obj_description, infile, materials)));
+                geo.push_back(std::move(readInSphere(obj_description, infile, materials)));
                 break;
             }
             case TRIANGLE: {
                 std::string obj_description;
-                objects.push_back(std::move(readInTriangle(obj_description, infile, materials)));
+                geo.push_back(std::move(readInTriangle(obj_description, infile, materials)));
                 break;
             }
             case CYLINDER: {
                 std::string obj_description;
-                objects.push_back(std::move(readInCylinder(obj_description, infile, materials)));
+                geo.push_back(std::move(readInCylinder(obj_description, infile, materials)));
                 break;
             }
             default:
@@ -172,8 +172,8 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
 
     // create scene
     Scene scene = Scene(camera, ambient_light, background_color);
-    for(auto & object : objects) {
-        scene.objects.push_back(std::move(object));
+    for(auto & object : geo) {
+        scene.geo.push_back(std::move(object));
     }
 
     for(auto & light : lights) {
@@ -183,7 +183,7 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
     return scene;
 }
 
-std::shared_ptr<BaseObject> SceneParser::readInSphere(const std::string& obj_description, std::ifstream& infile,
+std::shared_ptr<Geometry> SceneParser::readInSphere(const std::string& obj_description, std::ifstream& infile,
                                                       const std::vector<std::shared_ptr<Material>>& mats) {
     std::string description;
     infile >> description;
@@ -206,7 +206,7 @@ std::shared_ptr<BaseObject> SceneParser::readInSphere(const std::string& obj_des
     return std::make_shared<Sphere>(center, radius, mats[matIdx], obj_description);
 }
 
-std::shared_ptr<BaseObject> SceneParser::readInTriangle(const std::string& obj_description, std::ifstream& infile,
+std::shared_ptr<Geometry> SceneParser::readInTriangle(const std::string& obj_description, std::ifstream& infile,
                                                         const std::vector<std::shared_ptr<Material>>& mats) {
     std::string description;
     
@@ -230,7 +230,7 @@ std::shared_ptr<BaseObject> SceneParser::readInTriangle(const std::string& obj_d
     return std::make_shared<Triangle>(vertices, mats[matIdx], obj_description);
 }
 
-std::shared_ptr<BaseObject> SceneParser::readInCylinder(const std::string& obj_description, std::ifstream& infile,
+std::shared_ptr<Geometry> SceneParser::readInCylinder(const std::string& obj_description, std::ifstream& infile,
                                                         const std::vector<std::shared_ptr<Material>>& mats) {
     std::string description;
 

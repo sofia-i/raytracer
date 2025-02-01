@@ -5,7 +5,7 @@
 #ifndef RAYTRACER_2_MESH_H
 #define RAYTRACER_2_MESH_H
 
-#include "BaseObject.hpp"
+#include "Geometry.h"
 #include <utility>
 #include <vector>
 
@@ -13,7 +13,7 @@ struct Face {
     int vIdx[4];
 };
 
-class Mesh : public BaseObject {
+class Mesh : public Geometry {
 public:
     Mesh(std::vector<vec3<double>> vertices, std::vector<Face> faces, const std::shared_ptr<Material>& material,
          std::string description);

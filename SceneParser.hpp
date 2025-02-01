@@ -42,11 +42,11 @@ private:
     std::unordered_map<SceneElement, std::string> elemToStr;
 
     static vec3<double> readInVector(std::ifstream& infile);
-    std::shared_ptr<BaseObject> readInSphere(const std::string& obj_description, std::ifstream& infile,
+    std::shared_ptr<Geometry> readInSphere(const std::string& obj_description, std::ifstream& infile,
                                              const std::vector<std::shared_ptr<Material>>& mats);
-    std::shared_ptr<BaseObject> readInTriangle(const std::string& obj_description, std::ifstream& infile,
+    std::shared_ptr<Geometry> readInTriangle(const std::string& obj_description, std::ifstream& infile,
                                                const std::vector<std::shared_ptr<Material>>& mats);
-    std::shared_ptr<BaseObject> readInCylinder(const std::string& obj_description, std::ifstream& infile,
+    std::shared_ptr<Geometry> readInCylinder(const std::string& obj_description, std::ifstream& infile,
                                                const std::vector<std::shared_ptr<Material>>& mats);
     std::shared_ptr<Material> readInMaterial(std::ifstream& infile);
     std::shared_ptr<Material> readInRefractiveMaterial(std::ifstream& infile);

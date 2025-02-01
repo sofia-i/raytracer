@@ -11,7 +11,7 @@
 #include <cstdio>
 #include <vector>
 #include "Camera.h"
-#include "BaseObject.hpp"
+#include "Geometry.h"
 #include "Light.h"
 #include "Utils.h"
 
@@ -27,7 +27,7 @@ public:
     vec3<double> getBackgroundColor() const { return backgroundColor; }
     double getAmbientIor() const { return ambient_ior; }
 
-    std::vector<std::shared_ptr<BaseObject>> objects;
+    std::vector<std::shared_ptr<Geometry>> geo;
     std::vector<std::shared_ptr<Light>> lights;
 
     friend std::ostream& operator<<(std::ostream& os, Scene const &scene) {
@@ -39,8 +39,8 @@ public:
         for(auto&& light: scene.lights) {
             os << "\t" << *light << std::endl;
         }
-        for(auto&& object : scene.objects) {
-            os << "\tObject: " << object->toString() << std::endl;
+        for(auto&& g : scene.geo) {
+            os << "\tObject: " << g->toString() << std::endl;
         }
         return os;
     }

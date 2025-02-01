@@ -7,7 +7,7 @@
 
 Cylinder::Cylinder(vec3<double> capCenter1, vec3<double> capCenter2, double radius,
                    const std::shared_ptr<Material>& mat, const std::string& description) :
-        BaseObject(mat, std::move(description)),
+        Geometry(mat, std::move(description)),
         capCenter0(capCenter1), capCenter1(capCenter2), radius(radius) {
     cylinderD = getUnitVector(capCenter2 - capCenter1);
 }

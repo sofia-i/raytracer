@@ -6,7 +6,7 @@
 
 Mesh::Mesh(std::vector<vec3<double>> vertices, std::vector<Face> faces, const std::shared_ptr<Material>& material,
            std::string description) :
-                BaseObject(material, std::move(description)),
+                Geometry(material, std::move(description)),
                 vertices(std::move(vertices)), faces(std::move(faces)) { }
 
 double Mesh::findRayObjectIntersection(Ray ray) {

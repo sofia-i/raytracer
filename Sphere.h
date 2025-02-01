@@ -9,16 +9,16 @@
 #define Sphere_h
 
 #include "vec3.hpp"
-#include "BaseObject.hpp"
+#include "Geometry.h"
 
-class Sphere : public BaseObject {
+class Sphere : public Geometry {
 private:
     vec3<double> center;
     double radius;
 
 public:
     Sphere(vec3<double> center, double radius, const std::shared_ptr<Material>& mat, const std::string& description) :
-        BaseObject(mat, std::move(description)), center(center), radius(radius) {}
+        Geometry(mat, std::move(description)), center(center), radius(radius) {}
 
     ~Sphere() override = default; // I. destructor
     Sphere(const Sphere& other) = default; // II. copy constructor
@@ -39,7 +39,7 @@ public:
         ss << getDescription() << std::endl;
         ss << "\tCenter: " << getCenter() << std::endl;
         ss << "\tRadius: " << getRadius() << std::endl;
-        ss << BaseObject::toString() << std::endl;
+        ss << Geometry::toString() << std::endl;
          
         return ss.str();
     }

@@ -30,4 +30,5 @@ add_executable(raytracer_2
         Material.cpp
         Material.h
         Cylinder.cpp
-        Cylinder.h)
+        Cylinder.h
+        Geometry.h)

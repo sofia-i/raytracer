@@ -10,12 +10,12 @@
 
 #include <cstdio>
 #include <vector>
-#include "BaseObject.hpp"
+#include "Geometry.h"
 
-class Triangle : public BaseObject {
+class Triangle : public Geometry {
 public:
     Triangle(std::vector<vec3<double>> vertices, std::shared_ptr<Material> mat, const std::string& description) :
-        BaseObject(mat, std::move(description)), vertices(vertices)
+        Geometry(mat, std::move(description)), vertices(vertices)
     {
         calculatePlaneNormal();
         distToOrigin = calculateDistToOrigin();
@@ -29,6 +29,7 @@ public:
 
     double findRayObjectIntersection(Ray ray) override;
     double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
+    std::vector<vec3<double>> getVertices() { return vertices; }
     
     std::string toString() const override {
         std::string str = "";
@@ -36,7 +37,7 @@ public:
         
         ss << getDescription() << std::endl;
         // print out the vertices
-        ss << BaseObject::toString() << std::endl;
+        ss << Geometry::toString() << std::endl;
         
         return ss.str();
     }

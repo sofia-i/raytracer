@@ -77,11 +77,11 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
         Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
 
         // check for objects in the way of the path to the light
-        for(auto&& otherObj: scene.objects) {
-            double t = otherObj->findRayObjectIntersection(shadowRay);
+        for(auto&& otherGeo: scene.geo) {
+            double t = otherGeo->findRayObjectIntersection(shadowRay);
             if(t > 0 && t < distToLight) {
-                if (otherObj->mat()->getIsRefractive()) {
-                    inShadowPart += (1 - otherObj->mat()->getRefractionK());
+                if (otherGeo->mat()->getIsRefractive()) {
+                    inShadowPart += (1 - otherGeo->mat()->getRefractionK());
                 } else {
                     inShadowPart += 1.;
                     break;
@@ -97,23 +97,23 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
 }
 
 inline vec3<double> Raytracer::getAmbient(int objectIdx) {
-    std::shared_ptr<Material> mat = scene.objects[objectIdx]->mat();
+    std::shared_ptr<Material> mat = scene.geo[objectIdx]->mat();
     return mat->getAmbientK() * scene.getAmbientLight() * mat->getDiffuseColor();
 }
 
 inline vec3<double> Raytracer::getDiffuse(int objectIdx, const std::shared_ptr<Light>& light,
                                           const vec3<double>& normal, const vec3<double>& toLight) {
-    return scene.objects[objectIdx]->mat()->getDiffuseK() * light->getLightColor() *
-        scene.objects[objectIdx]->mat()->getDiffuseColor() * std::max(0.0, dot(normal, toLight));
+    return scene.geo[objectIdx]->mat()->getDiffuseK() * light->getLightColor() *
+        scene.geo[objectIdx]->mat()->getDiffuseColor() * std::max(0.0, dot(normal, toLight));
 }
 
 inline vec3<double> Raytracer::getSpecular(int objectIdx, const std::shared_ptr<Light>& light,
                                            const vec3<double>& normal, const vec3<double>& toLight,
                                            const vec3<double>& view) {
     vec3<double> reflection = ((2 * (dot(normal, toLight))) * normal) - toLight;
-    double specularK = scene.objects[objectIdx]->mat()->getSpecularK();
-    double glsK = scene.objects[objectIdx]->mat()->getGlsK();
-    const vec3<double>& specularColor = scene.objects[objectIdx]->mat()->getSpecularColor();
+    double specularK = scene.geo[objectIdx]->mat()->getSpecularK();
+    double glsK = scene.geo[objectIdx]->mat()->getGlsK();
+    const vec3<double>& specularColor = scene.geo[objectIdx]->mat()->getSpecularColor();
     return specularK * light->getLightColor() * specularColor *
         std::pow(std::max(0.0, dot(view, reflection)), glsK);
 }
@@ -177,8 +177,8 @@ Intersection Raytracer::getClosestIntersection(const Ray& ray) {
 
     bool backFace;
     // iterate over all objects to test each
-    for(int i = 0; i < scene.objects.size(); ++i) {
-        double t = scene.objects[i]->findRayObjectIntersection(ray, normal, backFace);
+    for(int i = 0; i < scene.geo.size(); ++i) {
+        double t = scene.geo[i]->findRayObjectIntersection(ray, normal, backFace);
         // if the ray intersects the object, check to see if the object is the first one hit (so far)
         if(t > 0) {
             if(closestObjIdx == -1 || t < intersectT) {
@@ -206,7 +206,7 @@ void Raytracer::getIorAcrossIntersection(int objIdx, bool isBackFace, double& io
     }
     else {
         iorIn = iors.top();
-        iorOut = scene.objects[objIdx]->mat()->getIOR();
+        iorOut = scene.geo[objIdx]->mat()->getIOR();
         iorRatio = iorIn / iorOut;
         iors.push(iorOut);
     }
@@ -256,7 +256,7 @@ inline Ray Raytracer::getTransmissionRay(const int objIdx, const vec3<double>& n
 
     vec3<double> refractDirection = refractDirP + refractDirS;
     // jitter refraction
-    refractDirection += scene.objects[objIdx]->mat()->getTransJitter() * vec3<double>::getRandom(-0.5, 0.5);
+    refractDirection += scene.geo[objIdx]->mat()->getTransJitter() * vec3<double>::getRandom(-0.5, 0.5);
     refractDirection = getUnitVector(refractDirection);
     vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
     return Ray(refractOrigin, refractDirection);
@@ -266,23 +266,23 @@ inline vec3<int> Raytracer::getTransmission(int objectIdx, const vec3<double>& n
                                     const vec3<double>& intersectPt, double iorRatio, int rayCount,
                                     std::stack<double>& iors) {
     Ray transmissionRay = getTransmissionRay(objectIdx, normal, rayD, intersectPt, iorRatio);
-    return scene.objects[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount, iors);
+    return scene.geo[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount, iors);
 }
 
 inline vec3<int> Raytracer::getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
                                const vec3<double>& intersectPt, int rayCount, std::stack<double>& iors) {
-    if(scene.objects[objectIdx]->mat()->getRefl() == 0) {
+    if(scene.geo[objectIdx]->mat()->getRefl() == 0) {
         return {0, 0, 0};
     }
     vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(normal, toView))) * normal) -
                                                      toView);
     // jitter reflection direction
-    reflectRayDirection += scene.objects[objectIdx]->mat()->getReflJitter() * vec3<double>::getRandom(-0.5, 0.5);
+    reflectRayDirection += scene.geo[objectIdx]->mat()->getReflJitter() * vec3<double>::getRandom(-0.5, 0.5);
     reflectRayDirection = getUnitVector(reflectRayDirection);
     vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
     Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
 
-    return scene.objects[objectIdx]->mat()->getRefl() * getRayResult(reflectionRay, ++rayCount, iors);
+    return scene.geo[objectIdx]->mat()->getRefl() * getRayResult(reflectionRay, ++rayCount, iors);
 }
 
 vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& iors) {
@@ -307,7 +307,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
 
     vec3<int> refractionResult(0, 0, 0);
     // Refraction & reflection
-    if(scene.objects[hit.objIndex]->mat()->getIsRefractive()) {
+    if(scene.geo[hit.objIndex]->mat()->getIsRefractive()) {
         // find iorRatio (eta)
         double iorRatio;
         double iorIn;
@@ -316,7 +316,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
 
         double kTran = 0;
         double kRefl = getPortionReflected(hit.normal, ray.getDirection(),
-                                           scene.objects[hit.objIndex]->mat()->getRefl(), iorIn, iorOut, iorRatio);
+                                           scene.geo[hit.objIndex]->mat()->getRefl(), iorIn, iorOut, iorRatio);
         if(kRefl < 1) {
             // compute refraction
             kTran = 1.0 - kRefl;

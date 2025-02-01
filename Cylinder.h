@@ -5,9 +5,9 @@
 #ifndef RAYTRACER_2_CYLINDER_H
 #define RAYTRACER_2_CYLINDER_H
 
-#include "BaseObject.hpp"
+#include "Geometry.h"
 
-class Cylinder : public BaseObject {
+class Cylinder : public Geometry {
 public:
     Cylinder(vec3<double> capCenter1, vec3<double> capCenter2, double radius,
              const std::shared_ptr<Material>& mat, const std::string& description);
@@ -20,6 +20,7 @@ public:
 
     vec3<double> getCapCenter1() const { return capCenter0; }
     vec3<double> getCapCenter2() const { return capCenter1; }
+    vec3<double> getDir() const { return cylinderD; }
     double getRadius() const { return radius; }
 
     double findRayObjectIntersection(Ray ray) override;
@@ -32,7 +33,7 @@ public:
         ss << getDescription() << std::endl;
         ss << "\tCap Centers: " << capCenter0 << "; " << capCenter1 << std::endl;
         ss << "\tRadius: " << getRadius() << std::endl;
-        ss << BaseObject::toString() << std::endl;
+        ss << Geometry::toString() << std::endl;
 
         return ss.str();
     }
