@@ -328,9 +328,17 @@ std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
     double refl;
     infile >> refl;
 
+    infile >> description;
+    double rJitter;
+    infile >> rJitter;
+
+    infile >> description;
+    double tJitter;
+    infile >> tJitter;
+
     // create material
     return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
-                                                                    refl);
+                                      refl, rJitter, tJitter);
 }
 
 std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& infile) {
@@ -363,6 +371,14 @@ std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& i
     infile >> refl;
 
     infile >> description;
+    double rJitter;
+    infile >> rJitter;
+
+    infile >> description;
+    double tJitter;
+    infile >> tJitter;
+
+    infile >> description;
     double ior;
     infile >> ior;
 
@@ -371,5 +387,5 @@ std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& i
     infile >> refractionK;
 
     return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
-                                      refl, ior, refractionK);
+                                      refl, rJitter, tJitter, ior, refractionK);
 }

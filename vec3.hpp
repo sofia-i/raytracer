@@ -13,6 +13,8 @@
 #include <cmath>
 #include <iostream>
 
+#include "Utils.h"
+
 template <typename T>
 class vec3 {
 public:
@@ -21,6 +23,16 @@ public:
     vec3() : e() {}
     vec3(T e0, T e1, T e2) {
         e[0] = e0; e[1] = e1, e[2] = e2;
+    }
+
+    static vec3<T> getRandom(T min, T max) {
+        RandomNumber rn;
+        std::uniform_real_distribution<double> dist = rn.get_dist(min, max);
+        return vec3<T>(
+                    rn.get_random_double_from_dist(dist),
+                    rn.get_random_double_from_dist(dist),
+                    rn.get_random_double_from_dist(dist)
+                );
     }
 
     // allow access by x, y, z (acting as coordinates)

@@ -11,11 +11,13 @@
 class Material {
 public:
     Material(double diffuseK, double specularK, double ambientK, double glsK,
-             vec3<double> diffuseColor, vec3<double> specularColor, double refl);
+               vec3<double> diffuseColor, vec3<double> specularColor,
+               double refl, double reflJitter, double transJitter);
 
     Material(double diffuseK, double specularK, double ambientK, double glsK,
                vec3<double> diffuseColor, vec3<double> specularColor,
-               double refl, double ior, double refractionK);
+               double refl, double reflJitter, double transJitter,
+               double ior, double refractionK);
 
     double getDiffuseK() const { return diffuseK; }
     double getSpecularK() const { return specularK; }
@@ -27,6 +29,8 @@ public:
     bool getIsRefractive() const { return refractive; }
     double getIOR() const { return ior; }
     double getRefractionK() const { return refractionK; }
+    double getReflJitter() const { return reflJitter; }
+    double getTransJitter() const { return transJitter; }
 
     friend std::ostream& operator<<(std::ostream& os, const Material& mat) {
         os << mat.toString();
@@ -60,6 +64,9 @@ protected:
     bool refractive;
     double ior;
     double refractionK;
+
+    double reflJitter;
+    double transJitter;
 
 };
 

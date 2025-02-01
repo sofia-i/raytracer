@@ -273,6 +273,9 @@ inline vec3<int> Raytracer::getReflection(int objectIdx, const vec3<double>& nor
     }
     vec3<double> reflectRayDirection = getUnitVector(((2 * (dot(normal, toView))) * normal) -
                                                      toView);
+    // jitter reflection direction
+    reflectRayDirection += scene.objects[objectIdx]->mat()->getReflJitter() * vec3<double>::getRandom(-0.5, 0.5);
+    reflectRayDirection = getUnitVector(reflectRayDirection);
     vec3<double> reflectRayOrigin = intersectPt + (EPSILON * reflectRayDirection);
     Ray reflectionRay = Ray(reflectRayOrigin, reflectRayDirection);
 
