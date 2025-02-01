@@ -238,7 +238,7 @@ double Raytracer::getPortionReflected(const vec3<double>& normal, const vec3<dou
     return matRefl + (1. - matRefl) * reflFresnel;
 }
 
-inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<double>& rayD,
+inline Ray Raytracer::getTransmissionRay(const int objIdx, const vec3<double>& normal, const vec3<double>& rayD,
                                          const vec3<double>& intersectPt, const double iorRatio) const {
     double cosIn = dot(normal, rayD);
     vec3<double> normalRef = normal;
@@ -255,6 +255,9 @@ inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<
     vec3<double> refractDirS = - std::sqrt(1. - std::pow(refractDirP.length(), 2)) * normalRef;
 
     vec3<double> refractDirection = refractDirP + refractDirS;
+    // jitter refraction
+    refractDirection += scene.objects[objIdx]->mat()->getTransJitter() * vec3<double>::getRandom(-0.5, 0.5);
+    refractDirection = getUnitVector(refractDirection);
     vec3<double> refractOrigin = intersectPt + (EPSILON * refractDirection);
     return Ray(refractOrigin, refractDirection);
 }
@@ -262,7 +265,7 @@ inline Ray Raytracer::getTransmissionRay(const vec3<double>& normal, const vec3<
 inline vec3<int> Raytracer::getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
                                     const vec3<double>& intersectPt, double iorRatio, int rayCount,
                                     std::stack<double>& iors) {
-    Ray transmissionRay = getTransmissionRay(normal, rayD, intersectPt, iorRatio);
+    Ray transmissionRay = getTransmissionRay(objectIdx, normal, rayD, intersectPt, iorRatio);
     return scene.objects[objectIdx]->mat()->getRefractionK() * getRayResult(transmissionRay, ++rayCount, iors);
 }
 

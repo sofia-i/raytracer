@@ -91,7 +91,7 @@ private:
     inline vec3<int> getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
                                      const vec3<double>& intersectPt, double iorRatio, int rayCount,
                                      std::stack<double>& iors);
-    inline Ray getTransmissionRay(const vec3<double>& normal, const vec3<double>& rayD,
+    inline Ray getTransmissionRay(const int objIdx, const vec3<double>& normal, const vec3<double>& rayD,
                                   const vec3<double>& intersectPt, double iorRatio) const;
     inline vec3<int> getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
                                    const vec3<double>& intersectPt, int rayCount,
