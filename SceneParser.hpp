@@ -22,6 +22,7 @@ enum SceneElement {
     AMBIENT_LIGHT,
     DIRECTIONAL_LIGHT,
     POINT_LIGHT,
+    AREA_LIGHT,
     BACKGROUND_COLOR,
     SPHERE,
     TRIANGLE,
@@ -51,6 +52,7 @@ private:
     std::shared_ptr<Material> readInRefractiveMaterial(std::ifstream& infile);
     std::shared_ptr<Light> readInDirectionalLight(std::ifstream& infile);
     std::shared_ptr<Light> readInPointLight(std::ifstream& infile);
+    std::shared_ptr<Light> readInAreaLight(std::ifstream& infile);
 };
 
 #endif /* SceneParser_hpp */

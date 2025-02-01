@@ -54,21 +54,44 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
     return pixelColors;
 }
 
-bool Raytracer::getInShadow(const vec3<double>& intersectPt, const vec3<double>& toLight) {
-    vec3<double> shadowRayDirection = toLight;
-    vec3<double> shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
-    Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared_ptr<Light>& light) {
+    vec3<double> shadowRayDirection;
+    vec3<double> shadowRayOrigin;
+    double inShadow = 0;
 
-    bool inShadow = false;
-    // go over all the objects to see if it hits any
-    for(auto&& otherObj: scene.objects) {
-        double t = otherObj->findRayObjectIntersection(shadowRay);
-        bool transparent = otherObj->mat()->getIsRefractive() && otherObj->mat()->getRefractionK() > 0.5;
-        if(t > 0 && !transparent) {  // FIXME
-            inShadow = true;
-            break;
+    // Iterate over each ray to light (1 for point & direction, multiple for area)
+    for(int i = 0; i < light->shadowRayCount; ++i) {
+        double inShadowPart = 0;
+
+        // calculate shadow ray
+        double distToLight;
+        bool hit;
+        // find direction to and distance to light
+        light->getPathToLight(intersectPt, i, hit, shadowRayDirection, distToLight);
+
+        if(!hit) {
+            continue;
         }
+        // shadowRayDirection = light->getDirectionToLight(intersectPt, i);
+        shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
+        Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+
+        // check for objects in the way of the path to the light
+        for(auto&& otherObj: scene.objects) {
+            double t = otherObj->findRayObjectIntersection(shadowRay);
+            if(t > 0 && t < distToLight) {
+                if (otherObj->mat()->getIsRefractive()) {
+                    inShadowPart += (1 - otherObj->mat()->getRefractionK());
+                } else {
+                    inShadowPart += 1.;
+                    break;
+                }
+            }
+        }
+
+        inShadow += std::min(inShadowPart, 1.);
     }
+    inShadow /= double(light->shadowRayCount);
 
     return inShadow;
 }
@@ -116,17 +139,16 @@ vec3<int> Raytracer::illuminationEq(int objectIdx, const vec3<double>& normal, c
     colorSum += getAmbient(objectIdx);
 
     for(auto&& light : scene.lights) {
-        vec3<double> toLight = light->getDirectionToLight(intersectPt);
-
         // compute shadow information
-        bool inShadow = getInShadow(intersectPt, toLight);
+        double shadowAmt = getInShadow(intersectPt, light);
 
-        // calculate intensity if not in shadow
-        if(!inShadow) {
+        // calculate intensity if not in complete shadow
+        if(shadowAmt < 1) {
+            vec3<double> toLight = light->getDirectionToLight(intersectPt);
             // compute diffuse contribution
-            colorSum += getDiffuse(objectIdx, light, normal, toLight);
+            colorSum += (1 - shadowAmt) * getDiffuse(objectIdx, light, normal, toLight);
             // compute specular contribution
-            colorSum += getSpecular(objectIdx, light, normal, toLight, view);
+            colorSum += (1 - shadowAmt) * getSpecular(objectIdx, light, normal, toLight, view);
         }
     }
 

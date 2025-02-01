@@ -76,7 +76,7 @@ private:
     vec3<int> getRayResult(Ray ray, int rayCount, std::stack<double>& iors);
 
     Intersection getClosestIntersection(const Ray& ray);
-    bool getInShadow(const vec3<double>& intersectPt, const vec3<double>& toLight);
+    double getInShadow(const vec3<double>& intersectPt, const std::shared_ptr<Light>& light);
 
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
     vec3<int> illuminationEq(int objectIdx, const vec3<double>& normal, const vec3<double>& view,

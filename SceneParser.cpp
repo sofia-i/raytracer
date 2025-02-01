@@ -23,6 +23,7 @@ SceneParser::SceneParser() {
     strToElement["AmbientLight"] = AMBIENT_LIGHT;
     strToElement["DirectionalLight"] = DIRECTIONAL_LIGHT;
     strToElement["PointLight"] = POINT_LIGHT;
+    strToElement["AreaLight"] = AREA_LIGHT;
     strToElement["BackgroundColor"] = BACKGROUND_COLOR;
     strToElement["Sphere"] = SPHERE;
     strToElement["Triangle"] = TRIANGLE;
@@ -37,6 +38,7 @@ SceneParser::SceneParser() {
     elemToStr[AMBIENT_LIGHT] = "AmbientLight";
     elemToStr[DIRECTIONAL_LIGHT] = "DirectionalLight";
     elemToStr[POINT_LIGHT] = "PointLight";
+    elemToStr[AREA_LIGHT] = "AreaLight";
     elemToStr[BACKGROUND_COLOR] = "BackgroundColor";
     elemToStr[SPHERE] = "Sphere";
     elemToStr[TRIANGLE] = "Triangle";
@@ -120,6 +122,10 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
             }
             case POINT_LIGHT: {
                 lights.push_back(readInPointLight(infile));
+                break;
+            }
+            case AREA_LIGHT: {
+                lights.push_back(readInAreaLight(infile));
                 break;
             }
             case BACKGROUND_COLOR: {
@@ -261,6 +267,36 @@ std::shared_ptr<Light> SceneParser::readInPointLight(std::ifstream& infile) {
     vec3<double> position = readInVector(infile);
 
     return std::make_shared<PointLight>(light_color, position);
+}
+
+std::shared_ptr<Light> SceneParser::readInAreaLight(std::ifstream& infile) {
+    std::string description;
+
+    infile >> description;
+    vec3<double> light_color = readInVector(infile);
+
+    infile >> description;
+    vec3<double> center = readInVector(infile);
+
+    infile >> description;
+    vec3<double> aim = readInVector(infile);
+
+    infile >> description;
+    vec3<double> up = readInVector(infile);
+
+    infile >> description;
+    double width;
+    infile >> width;
+
+    infile >> description;
+    double height;
+    infile >> height;
+
+    infile >> description;
+    double resolution;
+    infile >> resolution;
+
+    return std::make_shared<AreaLight>(light_color, center, aim, up, width, height, resolution);
 }
 
 std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
