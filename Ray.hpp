@@ -15,15 +15,18 @@ class Ray {
 private:
     vec3<double> origin;
     vec3<double> direction;
+    vec3<double> invDir;
     
 public:
     Ray(vec3<double> origin, vec3<double> direction) {
         this->origin = origin;
         this->direction = getUnitVector(direction);
+        this->invDir = getInverse(direction);
     }
     
     vec3<double> getDirection() { return direction; }
     vec3<double> getOrigin() { return origin; }
+    vec3<double> getInvDir() { return invDir; }
     vec3<double> getPointOnRay(double t) const {
         return origin + t * direction;
     }

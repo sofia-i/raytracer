@@ -144,6 +144,11 @@ inline vec3<T> getUnitVector(const vec3<T> &v) {
     return v / v.length();
 }
 
+template <typename T>
+inline vec3<T> getInverse(const vec3<T> &v) {
+    return {1. / v.x(), 1. / v.y(), 1. / v.z()};
+}
+
 inline vec3<int> toIntVec3(const vec3<double> &v) {
     return vec3<int>((int)(v.e[0]), (int)(v.e[1]), (int)(v.e[2]));
 }
