@@ -31,6 +31,8 @@ public:
 
     double findRayObjectIntersection(Ray ray) override;
     double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
+
+    Extent findExtent() override;
     
     std::string toString() const override {
         std::string str;

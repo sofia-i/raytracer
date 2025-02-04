@@ -3,11 +3,10 @@
 //
 
 #include "Cylinder.h"
-#include <cassert>
 
 Cylinder::Cylinder(vec3<double> capCenter1, vec3<double> capCenter2, double radius,
                    const std::shared_ptr<Material>& mat, const std::string& description) :
-        Geometry(mat, std::move(description)),
+        Geometry(mat, description),
         capCenter0(capCenter1), capCenter1(capCenter2), radius(radius) {
     cylinderD = getUnitVector(capCenter2 - capCenter1);
 }
@@ -20,7 +19,7 @@ double Cylinder::calculateDistToOrigin(const vec3<double>& pt) {
     return dot(cylinderD, -pt); // FIXME
 }
 
-bool Cylinder::capPtInBounds(const vec3<double>& capCenter, const vec3<double>& pt) {
+bool Cylinder::capPtInBounds(const vec3<double>& capCenter, const vec3<double>& pt) const {
     vec3<double> diff = pt - capCenter;
     return dot(diff, diff) < radius * radius;
 }
@@ -126,4 +125,23 @@ double Cylinder::findRayObjectIntersection(Ray ray, vec3<double> &intersectNorma
         intersectNormal = -intersectNormal;
     }
     return t;
+}
+
+Extent Cylinder::findExtent() {
+    Extent extent = Extent(capCenter0);
+    vec3<double> normal = getDir();
+
+    vec3<double> dir1 = getUnitVector(vec3<double>(-normal.y(), normal.x(), 0));
+    vec3<double> dir2 = getUnitVector(vec3<double>(-normal.z(), 0, normal.x()));
+
+    extent.update(capCenter0 - dir1 * radius);
+    extent.update(capCenter0 + dir1 * radius);
+    extent.update(capCenter0 - dir2 * radius);
+    extent.update(capCenter0 + dir2 * radius);
+    extent.update(capCenter1 - dir1 * radius);
+    extent.update(capCenter1 + dir1 * radius);
+    extent.update(capCenter1 - dir2 * radius);
+    extent.update(capCenter1 + dir2 * radius);
+
+    return extent;
 }

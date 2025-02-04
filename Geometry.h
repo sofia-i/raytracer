@@ -13,6 +13,7 @@
 #include "vec3.hpp"
 #include "Ray.hpp"
 #include "Material.h"
+#include "Extent.h"
 
 class Geometry {
 public:
@@ -27,6 +28,8 @@ public:
 
     virtual double findRayObjectIntersection(Ray ray) = 0;
     virtual double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) = 0;
+
+    virtual Extent findExtent() = 0;
 
     std::shared_ptr<Material> mat() const { return material; }
     std::shared_ptr<Material> getMaterial() const { return material; }

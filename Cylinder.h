@@ -26,6 +26,8 @@ public:
     double findRayObjectIntersection(Ray ray) override;
     double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
 
+    Extent findExtent() override;
+
     std::string toString() const override {
         std::string str;
         std::stringstream ss(str);
@@ -46,7 +48,7 @@ private:
     vec3<double> cylinderD;
 
     bool cylinderPtInBounds(const vec3<double>& pt);
-    bool capPtInBounds(const vec3<double>& capCenter, const vec3<double>& pt);
+    bool capPtInBounds(const vec3<double>& capCenter, const vec3<double>& pt) const;
     double calculateDistToOrigin(const vec3<double>& pt);
 };
 

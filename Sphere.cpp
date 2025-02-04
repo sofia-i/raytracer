@@ -65,3 +65,14 @@ double Sphere::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal,
 
     return t;
 }
+
+Extent Sphere::findExtent() {
+    return {
+            center.x() - radius,
+            center.x() + radius,
+            center.y() - radius,
+            center.y() + radius,
+            center.z() - radius,
+            center.z() + radius
+    };
+}

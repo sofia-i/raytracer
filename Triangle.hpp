@@ -29,10 +29,13 @@ public:
 
     double findRayObjectIntersection(Ray ray) override;
     double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
+
+    Extent findExtent() override;
+
     std::vector<vec3<double>> getVertices() { return vertices; }
     
     std::string toString() const override {
-        std::string str = "";
+        std::string str;
         std::stringstream ss(str);
         
         ss << getDescription() << std::endl;

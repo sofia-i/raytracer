@@ -74,3 +74,11 @@ double Triangle::findRayObjectIntersection(Ray ray, vec3<double>& intersectNorma
     return t;
 }
 
+Extent Triangle::findExtent() {
+    Extent extent(vertices.at(0));
+    for(auto vert : vertices) {
+        extent.update(vert);
+    }
+    return extent;
+}
+
