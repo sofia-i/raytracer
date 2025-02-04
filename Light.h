@@ -6,7 +6,7 @@
 #define RAYTRACER_2_LIGHT_H
 
 #include "vec3.hpp"
-#include <float.h>
+#include <cfloat>
 
 class Light {
 public:
@@ -16,9 +16,7 @@ public:
 
     virtual ~Light() = default; // I. destructor
     Light(const Light& other) = default; // II. copy constructor
-    Light& operator=(const Light& other) = default; // III. copy assignment
     Light(Light&& other) noexcept = default;// IV. move constructor
-    Light& operator=(Light&& other) noexcept = default; // V. move assignment
 
     virtual vec3<double> getDirectionToLight(vec3<double> point) const = 0;
     virtual void getPathToLight(const vec3<double>& point, int index, bool& hit, vec3<double>& direction,
@@ -47,9 +45,7 @@ public:
 
     ~DirectionalLight() override = default;  // I. destructor
     DirectionalLight(const DirectionalLight& other) = default;  // II. copy constructor
-    DirectionalLight& operator=(const DirectionalLight& other) = default;  // III. copy assignment
     DirectionalLight(DirectionalLight&& other) noexcept = default;  // IV. move constructor
-    DirectionalLight& operator=(DirectionalLight&& other) noexcept = default; // V. move assignment
 
     vec3<double> getDirectionToLight(vec3<double> point) const override {
         return getUnitVector(directionToLight);
@@ -81,9 +77,7 @@ public:
 
     ~PointLight() override = default;
     PointLight(const PointLight& other) = default;  // II. copy constructor
-    PointLight& operator=(const PointLight& other) = default;  // III. copy assignment
     PointLight(PointLight&& other) noexcept = default;  // IV. move constructor
-    PointLight& operator=(PointLight&& other) noexcept = default; // V. move assignment
 
     vec3<double> getDirectionToLight(vec3<double> point) const override {
         return getUnitVector(position - point);
@@ -129,9 +123,7 @@ public:
 
     ~AreaLight() override = default;
     AreaLight(const AreaLight& other) = default;  // II. copy constructor
-    AreaLight& operator=(const AreaLight& other) = default;  // III. copy assignment
     AreaLight(AreaLight&& other) noexcept = default;  // IV. move constructor
-    AreaLight& operator=(AreaLight&& other) noexcept = default; // V. move assignment
 
     vec3<double> getDirectionToLight(vec3<double> point) const override {
         return getUnitVector(center - point);
