@@ -5,6 +5,13 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
+# PROFILING SETTINGS
+set(PROFILE 0)
+if(PROFILE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif()
+
 add_executable(raytracer_2
         Camera.h
         main.cpp
@@ -31,4 +38,9 @@ add_executable(raytracer_2
         Material.h
         Cylinder.cpp
         Cylinder.h
-        Geometry.h)
+        Geometry.h
+        BoundingBox.cpp
+        BoundingBox.h
+        BoundingVolumeHierarchy.cpp
+        BoundingVolumeHierarchy.h
+        Extent.h)
