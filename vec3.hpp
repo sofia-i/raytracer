@@ -41,8 +41,8 @@ public:
     T z() const { return e[2]; }
 
     vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
-    double operator[](int i) const { return e[i]; }
-    // double& operator[](int i) { return e[i]; }
+    T operator[](int i) const { return e[i]; }
+    T& operator[](int i) { return e[i]; }
 
     // compound operators
     vec3& operator+=(const vec3<T> &v) {
