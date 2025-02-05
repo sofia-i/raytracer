@@ -75,29 +75,30 @@ private:
     vec3<int> getRayResult(vec3<double> target);
     vec3<int> getRayResult(Ray ray, int rayCount, std::stack<double>& iors);
 
-    Intersection getClosestIntersection(const Ray& ray);
+    GeoHit getClosestIntersection(const Ray& ray);
     double getInShadow(const vec3<double>& intersectPt, const std::shared_ptr<Light>& light);
 
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
-    vec3<int> illuminationEq(int objectIdx, const vec3<double>& normal, const vec3<double>& view,
+    vec3<int> illuminationEq(const std::shared_ptr<Material>& mat, const vec3<double>& normal, const vec3<double>& view,
                              const vec3<double>& intersectPt);
 
-    inline vec3<double> getAmbient(int objectIdx);
-    inline vec3<double> getDiffuse(int objectIdx, const std::shared_ptr<Light>& light,
+    inline vec3<double> getAmbient(const std::shared_ptr<Material>& mat);
+    inline vec3<double> getDiffuse(const std::shared_ptr<Material>& mat, const std::shared_ptr<Light>& light,
                                    const vec3<double>& normal, const vec3<double>& toLight);
-    inline vec3<double> getSpecular(int objectIdx, const std::shared_ptr<Light>& light,
+    inline vec3<double> getSpecular(const std::shared_ptr<Material>& mat, const std::shared_ptr<Light>& light,
                                     const vec3<double>& normal, const vec3<double>& toLight,
                                     const vec3<double>& view);
-    inline vec3<int> getTransmission(int objectIdx, const vec3<double>& normal, const vec3<double>& rayD,
-                                     const vec3<double>& intersectPt, double iorRatio, int rayCount,
-                                     std::stack<double>& iors);
-    inline Ray getTransmissionRay(const int objIdx, const vec3<double>& normal, const vec3<double>& rayD,
-                                  const vec3<double>& intersectPt, double iorRatio) const;
-    inline vec3<int> getReflection(int objectIdx, const vec3<double>& normal, const vec3<double>& toView,
-                                   const vec3<double>& intersectPt, int rayCount,
+    inline vec3<int> getTransmission(const std::shared_ptr<Material>& mat, const vec3<double>& normal,
+                                     const vec3<double>& rayD, const vec3<double>& intersectPt,
+                                     double iorRatio, int rayCount, std::stack<double>& iors);
+    inline Ray getTransmissionRay(const std::shared_ptr<Material>& mat, const vec3<double>& normal,
+                                  const vec3<double>& rayD, const vec3<double>& intersectPt, double iorRatio) const;
+    inline vec3<int> getReflection(const std::shared_ptr<Material>& mat, const vec3<double>& normal,
+                                   const vec3<double>& toView, const vec3<double>& intersectPt, int rayCount,
                                    std::stack<double>& iors);
 
-    void getIorAcrossIntersection(int objIdx, bool isBackFace, double& iorIn, double& iorOut, double& iorRatio,
+    void getIorAcrossIntersection(const std::shared_ptr<Material>& mat, bool isBackFace,
+                                  double& iorIn, double& iorOut, double& iorRatio,
                                   std::stack<double>& iors);
     double getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD, const double matRefl,
                                const double& iorIn, const double& iorOut, const double& iorRatio);

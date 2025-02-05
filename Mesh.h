@@ -24,8 +24,10 @@ public:
     Mesh(Mesh&& other) noexcept = default;// IV. move constructor
     Mesh& operator=(Mesh&& other) noexcept = default; // V. move assignment
 
-    double findRayObjectIntersection(Ray ray) override;
-    double findRayObjectIntersection(Ray ray, vec3<double>& intersectionNormal, bool& backFace) override;
+    GeoHit findRayGeoIntersection(Ray ray) override;
+
+protected:
+    double findRayGeoIntersectionT(Ray ray) override;
 
 private:
     std::vector<vec3<double>> vertices;

@@ -15,6 +15,26 @@
 #include "Material.h"
 #include "Extent.h"
 
+struct GeoHit {
+    GeoHit() = default;
+    GeoHit(bool isHit, double t, const vec3<double>& intersectPt, const vec3<double>& normal,
+                    bool backFace, const std::shared_ptr<Material>& mat) :
+            isHit(isHit), t(t), point(intersectPt), normal(normal), backFace(backFace), material(mat) {}
+
+    static GeoHit Miss() { return GeoHit(false); }
+
+    // int objIndex;
+    bool isHit;
+    double t;
+    vec3<double> point;
+    vec3<double> normal;
+    bool backFace;
+    std::shared_ptr<Material> material;
+
+private:
+    explicit GeoHit(bool isHit) : isHit(isHit) {}
+};
+
 class Geometry {
 public:
     Geometry(const std::shared_ptr<Material>& material, std::string description) :
@@ -26,8 +46,7 @@ public:
     Geometry(Geometry&& other) noexcept = default;// IV. move constructor
     Geometry& operator=(Geometry&& other) noexcept = default; // V. move assignment
 
-    virtual double findRayObjectIntersection(Ray ray) = 0;
-    virtual double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) = 0;
+    virtual GeoHit findRayGeoIntersection(Ray ray) = 0;
 
     virtual Extent findExtent() = 0;
 
@@ -51,6 +70,8 @@ public:
     }
 
 protected:
+    virtual double findRayGeoIntersectionT(Ray ray) = 0;
+
     std::shared_ptr<Material> material;
     std::string description;
 

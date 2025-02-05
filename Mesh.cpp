@@ -9,15 +9,14 @@ Mesh::Mesh(std::vector<vec3<double>> vertices, std::vector<Face> faces, const st
                 Geometry(material, std::move(description)),
                 vertices(std::move(vertices)), faces(std::move(faces)) { }
 
-double Mesh::findRayObjectIntersection(Ray ray) {
+double Mesh::findRayGeoIntersectionT(Ray ray) {
     // TODO
     return 0;
 }
 
-double Mesh::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) {
+GeoHit Mesh::findRayGeoIntersection(Ray ray) {
     // TODO
-    double t = findRayObjectIntersection(ray);
-    return 0;
+    double t = findRayGeoIntersectionT(ray);
 }
 
 

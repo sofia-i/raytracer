@@ -24,7 +24,7 @@ bool Cylinder::capPtInBounds(const vec3<double>& capCenter, const vec3<double>& 
     return dot(diff, diff) < radius * radius;
 }
 
-double Cylinder::findRayObjectIntersection(Ray ray) {
+double Cylinder::findRayGeoIntersectionT(Ray ray) {
     const vec3<double>& rayO = ray.getOrigin();
     const vec3<double>& rayD = ray.getDirection();
     vec3<double> cylinderPt = capCenter0;
@@ -97,34 +97,35 @@ double Cylinder::findRayObjectIntersection(Ray ray) {
     return t;
 }
 
-double Cylinder::findRayObjectIntersection(Ray ray, vec3<double> &intersectNormal, bool &backFace) {
-    double t = findRayObjectIntersection(ray);
+GeoHit Cylinder::findRayGeoIntersection(Ray ray) {
+    double t = findRayGeoIntersectionT(ray);
 
-    if(t < 0) {
-        return t;
-    }
+    if(t < 0) return GeoHit::Miss();
 
-    vec3<double> intersectPt = ray.getPointOnRay(t);
-    if((intersectPt - capCenter0).length() <= radius) {
+    vec3<double> hitPoint = ray.getPointOnRay(t);
+    vec3<double> hitNormal;
+
+    if((hitPoint - capCenter0).length() <= radius) {
         // cap 0
-        intersectNormal = -cylinderD;
+        hitNormal = -cylinderD;
     }
-    else if((intersectPt - capCenter1).length() <= radius) {
+    else if((hitPoint - capCenter1).length() <= radius) {
         // cap 1
-        intersectNormal = cylinderD;
+        hitNormal = cylinderD;
     }
     else {
         // intersected cylinder
-        double tAlongCenterline = dot((intersectPt - capCenter0), cylinderD);
+        double tAlongCenterline = dot((hitPoint - capCenter0), cylinderD);
         vec3<double> centerlinePt = capCenter0 + tAlongCenterline * cylinderD;
-        intersectNormal = getUnitVector(intersectPt - centerlinePt);
+        hitNormal = getUnitVector(hitPoint - centerlinePt);
     }
 
-    backFace = dot(intersectNormal, ray.getDirection()) > 0;
+    bool backFace = dot(hitNormal, ray.getDirection()) > 0;
     if(backFace) {
-        intersectNormal = -intersectNormal;
+        hitNormal = -hitNormal;
     }
-    return t;
+
+    return {true, t, hitPoint, hitNormal, backFace, material} ;
 }
 
 Extent Cylinder::findExtent() {

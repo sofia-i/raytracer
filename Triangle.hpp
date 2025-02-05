@@ -27,8 +27,7 @@ public:
     Triangle(Triangle&& other) noexcept = default;// IV. move constructor
     Triangle& operator=(Triangle&& other) noexcept = default; // V. move assignment
 
-    double findRayObjectIntersection(Ray ray) override;
-    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
+    GeoHit findRayGeoIntersection(Ray ray) override;
 
     Extent findExtent() override;
 
@@ -45,10 +44,14 @@ public:
         return ss.str();
     }
 
+protected:
+    double findRayGeoIntersectionT(Ray ray) override;
+
 private:
     std::vector<vec3<double>> vertices;
     vec3<double> planeNormal;
     double distToOrigin;
+    bool doubleSided = true;
 
     void calculatePlaneNormal();
     double calculateDistToOrigin();

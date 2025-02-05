@@ -9,7 +9,7 @@
 #include "vec3.hpp"
 #include "Ray.hpp"
 
-double Sphere::findRayObjectIntersection(Ray ray) {
+double Sphere::findRayGeoIntersectionT(Ray ray) {
     // extract information from the ray and sphere
     vec3<double> ray_o = ray.getOrigin();
     vec3<double> ray_d = ray.getDirection();
@@ -46,24 +46,20 @@ double Sphere::findRayObjectIntersection(Ray ray) {
     }
 }
 
-double Sphere::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) {
-    double t = findRayObjectIntersection(ray);
+GeoHit Sphere::findRayGeoIntersection(Ray ray) {
+    double t = findRayGeoIntersectionT(ray);
 
-    // if intersected, calculate normal and back face
-    if(t >= 0.) {
-        // calculate intersection normal
-        vec3<double> intersectPt = ray.getOrigin() + t * ray.getDirection();
-        intersectNormal = getUnitVector(intersectPt - this->getCenter());
-        // determine back face (if inside)
-        if((ray.getOrigin() - center).length() < radius) {
-            backFace = true;
-        }
-        else {
-            backFace = false;
-        }
-    }
+    // if not intersected, return false
+    if(t < 0.) return GeoHit::Miss();
 
-    return t;
+    // Calculate intersection information
+    vec3<double> hitPoint = ray.getOrigin() + t * ray.getDirection();
+    // calculate hit normal
+    vec3<double> hitNormal = getUnitVector(hitPoint - this->getCenter());
+    // determine back face (if ray starts inside sphere)
+    bool backFace = (ray.getOrigin() - center).length() < radius;
+
+    return {true, t, hitPoint, hitNormal, backFace, material};
 }
 
 Extent Sphere::findExtent() {

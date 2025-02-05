@@ -21,7 +21,7 @@ void Triangle::calculatePlaneNormal() {
     this->planeNormal = getUnitVector(normal);
 }
 
-double Triangle::findRayObjectIntersection(Ray ray) {
+double Triangle::findRayGeoIntersectionT(Ray ray) {
     /*
      * check if the ray intersects the plane containing the triangle
      */
@@ -56,22 +56,27 @@ double Triangle::findRayObjectIntersection(Ray ray) {
     return t;
 }
 
-double Triangle::findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) {
-    double t = findRayObjectIntersection(ray);
-    // if intersected, calculate intersect normal and back face
-    if(t > 0) {
-        if(dot(ray.getDirection(), planeNormal) < 0.0) {
-            // The ray and the plane normal are facing in opposite directions (front face)
-            intersectNormal = planeNormal;
-            backFace = false;
-        }
-        else {
-            // back face
-            intersectNormal = -planeNormal;
-            backFace = false;  // don't label as back face (FIXME?)
+GeoHit Triangle::findRayGeoIntersection(Ray ray) {
+    double t = findRayGeoIntersectionT(ray);
+    // miss if t is negative
+    if(t < 0) return GeoHit::Miss();
+
+    // Intersected, so calculate intersect information
+    vec3<double> hitNormal;
+    bool backFace = false;
+    if(dot(ray.getDirection(), planeNormal) < 0.0) {
+        // The ray and the plane normal are facing in opposite directions (front face)
+        hitNormal = planeNormal;
+    }
+    else {
+        // back face
+        hitNormal = -planeNormal;
+        if(!doubleSided) {
+            backFace = true;
         }
     }
-    return t;
+
+    return {true, t, ray.getPointOnRay(t), hitNormal, backFace, material};
 }
 
 Extent Triangle::findExtent() {

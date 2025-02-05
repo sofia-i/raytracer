@@ -29,8 +29,7 @@ public:
     vec3<double> getCenter() const { return center; }
     double getRadius() const { return radius; }
 
-    double findRayObjectIntersection(Ray ray) override;
-    double findRayObjectIntersection(Ray ray, vec3<double>& intersectNormal, bool& backFace) override;
+    GeoHit findRayGeoIntersection(Ray ray) override;
 
     Extent findExtent() override;
     
@@ -45,6 +44,9 @@ public:
          
         return ss.str();
     }
+
+protected:
+    double findRayGeoIntersectionT(Ray ray) override;
 };
 
 
