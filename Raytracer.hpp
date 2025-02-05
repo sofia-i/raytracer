@@ -31,18 +31,6 @@ struct WorldSpaceCoord {
                             uAxis(uAxis), vAxis(vAxis) {}
 };
 
-struct Intersection {
-    Intersection(int objIndex, double t, const vec3<double>& intersectPt, const vec3<double>& normal,
-                 bool backFace) :
-            objIndex(objIndex), t(t), point(intersectPt), normal(normal), backFace(backFace) {}
-
-    int objIndex;
-    double t;
-    vec3<double> point;
-    vec3<double> normal;
-    bool backFace;
-};
-
 class Raytracer {
 public:
     explicit Raytracer(Scene scene) : scene(scene), raysPerPixelPerSide(2) { }
