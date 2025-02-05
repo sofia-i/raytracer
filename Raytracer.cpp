@@ -72,11 +72,10 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
         if(!hitLight) {
             continue;
         }
-        // shadowRayDirection = light->getDirectionToLight(intersectPt, i);
         shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
         Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
 
-        // check for objects in the way of the path to the light
+        // check for geo in the way of the path to the light
         for(auto&& otherGeo: scene.geo) {
             RayHit geoHitInfo = otherGeo->findRayHit(shadowRay);
             if(geoHitInfo.isHit && geoHitInfo.t < distToLight) {
@@ -123,7 +122,7 @@ inline vec3<double> Raytracer::getSpecular(const std::shared_ptr<Material>& mat,
  * Compute illumination equation
  * includes intensity from ambient, specular, diffuse
  * not from reflection, transmission
- * @param objectIdx
+ * @param mat
  * @param normal
  * @param view
  * @param intersectPt
@@ -170,19 +169,17 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
 RayHit Raytracer::getClosestIntersection(const Ray& ray) {
     vec3<double> normal;
 
-    int closestObjIdx = -1;
+    int closestGeoIdx = -1;
     RayHit closestHitInfo = RayHit::Miss();
 
-    // iterate over all objects to test each
+    // iterate over all geo to test each
     for(int i = 0; i < scene.geo.size(); ++i) {
         RayHit hitInfo = scene.geo[i]->findRayHit(ray);
-        // if the ray intersects the object, check to see if the object is the first one hit (so far)
-        if(hitInfo.isHit) {
-            if(closestObjIdx == -1 || hitInfo.t < closestHitInfo.t) {
-                // update the closest intersected object
-                closestObjIdx = i;
-                closestHitInfo = hitInfo;
-            }
+        // if the ray intersects the geo, check to see if the geo is the closest one hit (so far)
+        if(hitInfo.isHit && (closestGeoIdx == -1 || hitInfo.t < closestHitInfo.t)) {
+            // update the closest intersected geo
+            closestGeoIdx = i;
+            closestHitInfo = hitInfo;
         }
     }
 
@@ -289,11 +286,11 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
         return {0, 0, 0};
     }
     
-    // Find the closest object intersected by the ray
+    // Find the closest geo intersected by the ray
     // Intersection hit = getClosestIntersection(ray);
     RayHit hit = getClosestIntersection(ray);
 
-    // If no object was intersected, return the background color
+    // If no geo was intersected, return the background color
     if(!hit.isHit) {
         return toIntVec3(255 * scene.getBackgroundColor());
     }

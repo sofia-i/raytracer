@@ -172,8 +172,8 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
 
     // create scene
     Scene scene = Scene(camera, ambient_light, background_color);
-    for(auto & object : geo) {
-        scene.geo.push_back(std::move(object));
+    for(auto & g : geo) {
+        scene.geo.push_back(std::move(g));
     }
 
     for(auto & light : lights) {
@@ -315,10 +315,10 @@ std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
     infile >> ka;
 
     infile >> description;
-    vec3<double> objectColor = readInVector(infile);
+    vec3<double> color = readInVector(infile);
 
     infile >> description;
-    vec3<double> objectSpecular = readInVector(infile);
+    vec3<double> specular = readInVector(infile);
 
     infile >> description;
     double kgls;
@@ -337,7 +337,7 @@ std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
     infile >> tJitter;
 
     // create material
-    return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+    return std::make_shared<Material>(kd, ks, ka, kgls, color, specular,
                                       refl, rJitter, tJitter);
 }
 
@@ -357,10 +357,10 @@ std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& i
     infile >> ka;
 
     infile >> description;
-    vec3<double> objectColor = readInVector(infile);
+    vec3<double> color = readInVector(infile);
 
     infile >> description;
-    vec3<double> objectSpecular = readInVector(infile);
+    vec3<double> specular = readInVector(infile);
 
     infile >> description;
     double kgls;
@@ -386,6 +386,6 @@ std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& i
     double refractionK;
     infile >> refractionK;
 
-    return std::make_shared<Material>(kd, ks, ka, kgls, objectColor, objectSpecular,
+    return std::make_shared<Material>(kd, ks, ka, kgls, color, specular,
                                       refl, rJitter, tJitter, ior, refractionK);
 }

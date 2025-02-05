@@ -16,7 +16,6 @@ struct RayHit {
 
     static RayHit Miss() { return RayHit(false); }
 
-    // int objIndex;
     bool isHit;
     double t;
     vec3<double> point;

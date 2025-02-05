@@ -33,8 +33,8 @@ public:
     std::shared_ptr<Material> getMaterial() const { return material; }
     std::string getDescription() const { return description; }
 
-    friend std::ostream& operator<<(std::ostream& os, const Geometry& obj) {
-        os << obj.toString();
+    friend std::ostream& operator<<(std::ostream& os, const Geometry& geo) {
+        os << geo.toString();
         return os;
     }
 

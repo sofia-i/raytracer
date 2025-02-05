@@ -44,8 +44,8 @@ public:
         ss << "\tKd: " << diffuseK << std::endl;
         ss << "\tKs: " << specularK << std::endl;
         ss << "\tKa: " << ambientK << std::endl;
-        ss << "\tObject Color: " << diffuseColor << std::endl;
-        ss << "\tObject specular: " << specularColor << std::endl;
+        ss << "\tDiffuse Color: " << diffuseColor << std::endl;
+        ss << "\tSpecular Color: " << specularColor << std::endl;
         ss << "\tKgls: " << glsK << std::endl;
         ss << "\tReflectivity: " << refl << std::endl;
 

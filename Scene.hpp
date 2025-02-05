@@ -40,7 +40,7 @@ public:
             os << "\t" << *light << std::endl;
         }
         for(auto&& g : scene.geo) {
-            os << "\tObject: " << g->toString() << std::endl;
+            os << "\tGeo: " << g->toString() << std::endl;
         }
         return os;
     }
