@@ -78,7 +78,7 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
 
         // check for objects in the way of the path to the light
         for(auto&& otherGeo: scene.geo) {
-            GeoHit geoHitInfo = otherGeo->findRayGeoIntersection(shadowRay);
+            RayHit geoHitInfo = otherGeo->findRayHit(shadowRay);
             if(geoHitInfo.isHit && geoHitInfo.t < distToLight) {
                 if(geoHitInfo.material->getIsRefractive()) {
                     inShadowPart += (1 - geoHitInfo.material->getRefractionK());
@@ -167,15 +167,15 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
     return getRayResult(ray, 1, iors);
 }
 
-GeoHit Raytracer::getClosestIntersection(const Ray& ray) {
+RayHit Raytracer::getClosestIntersection(const Ray& ray) {
     vec3<double> normal;
 
     int closestObjIdx = -1;
-    GeoHit closestHitInfo = GeoHit::Miss();
+    RayHit closestHitInfo = RayHit::Miss();
 
     // iterate over all objects to test each
     for(int i = 0; i < scene.geo.size(); ++i) {
-        GeoHit hitInfo = scene.geo[i]->findRayGeoIntersection(ray);
+        RayHit hitInfo = scene.geo[i]->findRayHit(ray);
         // if the ray intersects the object, check to see if the object is the first one hit (so far)
         if(hitInfo.isHit) {
             if(closestObjIdx == -1 || hitInfo.t < closestHitInfo.t) {
@@ -291,7 +291,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
     
     // Find the closest object intersected by the ray
     // Intersection hit = getClosestIntersection(ray);
-    GeoHit hit = getClosestIntersection(ray);
+    RayHit hit = getClosestIntersection(ray);
 
     // If no object was intersected, return the background color
     if(!hit.isHit) {

@@ -6,6 +6,7 @@
 #define RAYTRACER_2_HITTABLE_H
 
 #include "Material.h"
+#include "Ray.hpp"
 
 struct RayHit {
     RayHit() = default;

@@ -13,6 +13,7 @@
 #include "Scene.hpp"
 #include "Camera.h"
 #include "Ray.hpp"
+#include "Hittable.h"
 
 struct WorldSpaceCoord {
     double maxU;
@@ -75,7 +76,7 @@ private:
     vec3<int> getRayResult(vec3<double> target);
     vec3<int> getRayResult(Ray ray, int rayCount, std::stack<double>& iors);
 
-    GeoHit getClosestIntersection(const Ray& ray);
+    RayHit getClosestIntersection(const Ray& ray);
     double getInShadow(const vec3<double>& intersectPt, const std::shared_ptr<Light>& light);
 
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
