@@ -39,9 +39,6 @@ public:
         return ss.str();
     }
 
-protected:
-    double findRayGeoIntersectionT(Ray ray) override;
-
 private:
     vec3<double> capCenter0;
     vec3<double> capCenter1;
@@ -49,6 +46,7 @@ private:
 
     vec3<double> cylinderD;
 
+    double findRayGeoIntersectionT(Ray ray);
     bool cylinderPtInBounds(const vec3<double>& pt);
     bool capPtInBounds(const vec3<double>& capCenter, const vec3<double>& pt) const;
     double calculateDistToOrigin(const vec3<double>& pt);

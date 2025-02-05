@@ -26,8 +26,8 @@ public:
 
     GeoHit findRayGeoIntersection(Ray ray) override;
 
-protected:
-    double findRayGeoIntersectionT(Ray ray) override;
+private:
+    double findRayGeoIntersectionT(Ray ray);
 
 private:
     std::vector<vec3<double>> vertices;

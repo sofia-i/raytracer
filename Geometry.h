@@ -70,8 +70,6 @@ public:
     }
 
 protected:
-    virtual double findRayGeoIntersectionT(Ray ray) = 0;
-
     std::shared_ptr<Material> material;
     std::string description;
 

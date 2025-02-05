@@ -12,10 +12,6 @@
 #include "Geometry.h"
 
 class Sphere : public Geometry {
-private:
-    vec3<double> center;
-    double radius;
-
 public:
     Sphere(vec3<double> center, double radius, const std::shared_ptr<Material>& mat, const std::string& description) :
         Geometry(mat, std::move(description)), center(center), radius(radius) {}
@@ -45,8 +41,12 @@ public:
         return ss.str();
     }
 
-protected:
-    double findRayGeoIntersectionT(Ray ray) override;
+private:
+    double findRayGeoIntersectionT(Ray ray);
+
+private:
+    vec3<double> center;
+    double radius;
 };
 
 
