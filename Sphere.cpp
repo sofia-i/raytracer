@@ -46,11 +46,11 @@ double Sphere::findRayGeoIntersectionT(Ray ray) {
     }
 }
 
-GeoHit Sphere::findRayGeoIntersection(Ray ray) {
+RayHit Sphere::findRayHit(Ray ray) {
     double t = findRayGeoIntersectionT(ray);
 
     // if not intersected, return false
-    if(t < 0.) return GeoHit::Miss();
+    if(t < 0.) return RayHit::Miss();
 
     // Calculate intersection information
     vec3<double> hitPoint = ray.getOrigin() + t * ray.getDirection();

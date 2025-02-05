@@ -14,7 +14,7 @@ double Mesh::findRayGeoIntersectionT(Ray ray) {
     return 0;
 }
 
-GeoHit Mesh::findRayGeoIntersection(Ray ray) {
+RayHit Mesh::findRayHit(Ray ray) {
     // TODO
     double t = findRayGeoIntersectionT(ray);
 }

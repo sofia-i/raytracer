@@ -97,10 +97,10 @@ double Cylinder::findRayGeoIntersectionT(Ray ray) {
     return t;
 }
 
-GeoHit Cylinder::findRayGeoIntersection(Ray ray) {
+RayHit Cylinder::findRayHit(Ray ray) {
     double t = findRayGeoIntersectionT(ray);
 
-    if(t < 0) return GeoHit::Miss();
+    if(t < 0) return RayHit::Miss();
 
     vec3<double> hitPoint = ray.getPointOnRay(t);
     vec3<double> hitNormal;

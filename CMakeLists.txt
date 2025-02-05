@@ -15,7 +15,6 @@ endif()
 add_executable(raytracer_2
         Camera.h
         main.cpp
-        BaseObject.hpp
         PpmWriter.hpp
         Ray.hpp
         Raytracer.cpp
@@ -39,8 +38,5 @@ add_executable(raytracer_2
         Cylinder.cpp
         Cylinder.h
         Geometry.h
-        BoundingBox.cpp
-        BoundingBox.h
-        BoundingVolumeHierarchy.cpp
-        BoundingVolumeHierarchy.h
-        Extent.h)
+        Extent.h
+        Hittable.h)

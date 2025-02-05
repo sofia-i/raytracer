@@ -24,7 +24,7 @@ public:
     Mesh(Mesh&& other) noexcept = default;// IV. move constructor
     Mesh& operator=(Mesh&& other) noexcept = default; // V. move assignment
 
-    GeoHit findRayGeoIntersection(Ray ray) override;
+    RayHit findRayHit(Ray ray) override;
 
 private:
     double findRayGeoIntersectionT(Ray ray);

@@ -56,10 +56,10 @@ double Triangle::findRayGeoIntersectionT(Ray ray) {
     return t;
 }
 
-GeoHit Triangle::findRayGeoIntersection(Ray ray) {
+RayHit Triangle::findRayHit(Ray ray) {
     double t = findRayGeoIntersectionT(ray);
     // miss if t is negative
-    if(t < 0) return GeoHit::Miss();
+    if(t < 0) return RayHit::Miss();
 
     // Intersected, so calculate intersect information
     vec3<double> hitNormal;

@@ -27,7 +27,7 @@ public:
     Triangle(Triangle&& other) noexcept = default;// IV. move constructor
     Triangle& operator=(Triangle&& other) noexcept = default; // V. move assignment
 
-    GeoHit findRayGeoIntersection(Ray ray) override;
+    RayHit findRayHit(Ray ray) override;
 
     Extent findExtent() override;
 

@@ -23,7 +23,7 @@ public:
     vec3<double> getDir() const { return cylinderD; }
     double getRadius() const { return radius; }
 
-    GeoHit findRayGeoIntersection(Ray ray) override;
+    RayHit findRayHit(Ray ray) override;
 
     Extent findExtent() override;
 
