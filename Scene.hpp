@@ -12,15 +12,21 @@
 #include <vector>
 #include "Camera.h"
 #include "Geometry.h"
+#include "BoundingBox.h"
+#include "BoundingVolumeHierarchy.h"
 #include "Light.h"
 #include "Utils.h"
 
 class Scene {
 public:
-    Scene() = default;
     Scene(Camera &camera, vec3<double> ambient_light, vec3<double> backgroundColor)  :
             camera(camera), ambient_light(ambient_light), backgroundColor(backgroundColor),
-            ambient_ior(IndexOfRefraction::AIR) {}
+            ambient_ior(IndexOfRefraction::AIR) { }
+
+    void process() {
+        bvh = std::make_shared<MedianSplit>();
+        bvh->constructHierarchy(geo);
+    }
 
     Camera getCamera() { return camera; }
     vec3<double> getAmbientLight() const { return ambient_light; }
@@ -29,6 +35,7 @@ public:
 
     std::vector<std::shared_ptr<Geometry>> geo;
     std::vector<std::shared_ptr<Light>> lights;
+    std::shared_ptr<BoundingVolumeHierarchy> bvh;
 
     friend std::ostream& operator<<(std::ostream& os, Scene const &scene) {
         os << "Scene: " << std::endl;

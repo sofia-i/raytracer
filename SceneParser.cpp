@@ -180,6 +180,7 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
         scene.lights.push_back(std::move(light));
     }
 
+    scene.process();
     return scene;
 }
 

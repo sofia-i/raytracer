@@ -49,6 +49,8 @@ public:
     }
 
 private:
+    const bool USE_BOUNDING_VOLUME = true;
+
     const int MAX_NUM_RAYS = 5;
     const double EPSILON = 2e-8;
     const int raysPerPixelPerSide;

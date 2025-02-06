@@ -39,4 +39,6 @@ add_executable(raytracer_2
         Cylinder.h
         Geometry.h
         Extent.h
-        Hittable.h)
+        Hittable.h
+        BoundingBox.cpp
+        BoundingVolumeHierarchy.cpp)

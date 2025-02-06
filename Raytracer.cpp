@@ -61,8 +61,6 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
 
     // Iterate over each ray to light (1 for point & direction, multiple for area)
     for(int i = 0; i < light->shadowRayCount; ++i) {
-        double inShadowPart = 0;
-
         // calculate shadow ray
         double distToLight;
         bool hitLight;
@@ -72,20 +70,31 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
         if(!hitLight) {
             continue;
         }
-        shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
-        Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
 
         // check for geo in the way of the path to the light
-        for(auto&& otherGeo: scene.geo) {
-            RayHit geoHitInfo = otherGeo->findRayHit(shadowRay);
-            if(geoHitInfo.isHit && geoHitInfo.t < distToLight) {
-                if(geoHitInfo.material->getIsRefractive()) {
-                    inShadowPart += (1 - geoHitInfo.material->getRefractionK());
-                }
-                else {
-                    inShadowPart += 1;
-                    break;
-                }
+        shadowRayOrigin = intersectPt + EPSILON * shadowRayDirection;
+        Ray shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+        double inShadowPart = 0;
+        // FIXME: don't have to get closest first...
+        // FIXME: optimization with excluding already checked?
+        double tCovered = 0;
+        while(inShadowPart < 1.) {
+            RayHit geoHitInfo = getClosestIntersection(shadowRay);
+
+            // if nothing is hit or if you're past the light, stop looking
+            if(!geoHitInfo.isHit || (tCovered + geoHitInfo.t) >= distToLight) break;
+
+            if(geoHitInfo.material->getIsRefractive()) {
+                inShadowPart += (1 - geoHitInfo.material->getRefractionK());
+                // Start new ray after the point already hit
+                tCovered += geoHitInfo.t;
+
+                shadowRayOrigin = geoHitInfo.point + EPSILON * shadowRayDirection;
+                shadowRay = Ray(shadowRayOrigin, shadowRayDirection);
+            }
+            else {
+                inShadowPart += 1;
+                break;
             }
         }
 
@@ -167,23 +176,28 @@ vec3<int> Raytracer::getRayResult(vec3<double> target) {
 }
 
 RayHit Raytracer::getClosestIntersection(const Ray& ray) {
-    vec3<double> normal;
-
-    int closestGeoIdx = -1;
-    RayHit closestHitInfo = RayHit::Miss();
-
-    // iterate over all geo to test each
-    for(int i = 0; i < scene.geo.size(); ++i) {
-        RayHit hitInfo = scene.geo[i]->findRayHit(ray);
-        // if the ray intersects the geo, check to see if the geo is the closest one hit (so far)
-        if(hitInfo.isHit && (closestGeoIdx == -1 || hitInfo.t < closestHitInfo.t)) {
-            // update the closest intersected geo
-            closestGeoIdx = i;
-            closestHitInfo = hitInfo;
-        }
+    if(USE_BOUNDING_VOLUME) {
+        return scene.bvh->findRayHit(ray);
     }
+    else {
+        vec3<double> normal;
 
-    return closestHitInfo;
+        int closestGeoIdx = -1;
+        RayHit closestHitInfo = RayHit::Miss();
+
+        // iterate over all geo to test each
+        for(int i = 0; i < scene.geo.size(); ++i) {
+            RayHit hitInfo = scene.geo[i]->findRayHit(ray);
+            // if the ray intersects the geo, check to see if the geo is the closest one hit (so far)
+            if(hitInfo.isHit && (closestGeoIdx == -1 || hitInfo.t < closestHitInfo.t)) {
+                // update the closest intersected geo
+                closestGeoIdx = i;
+                closestHitInfo = hitInfo;
+            }
+        }
+
+        return closestHitInfo;
+    }
 }
 
 void Raytracer::getIorAcrossIntersection(const std::shared_ptr<Material>& mat, bool isBackFace,
