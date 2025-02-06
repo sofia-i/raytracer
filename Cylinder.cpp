@@ -130,19 +130,14 @@ RayHit Cylinder::findRayHit(Ray ray) {
 
 Extent Cylinder::findExtent() {
     Extent extent = Extent(capCenter0);
-    vec3<double> normal = getDir();
-
-    vec3<double> dir1 = getUnitVector(vec3<double>(-normal.y(), normal.x(), 0));
-    vec3<double> dir2 = getUnitVector(vec3<double>(-normal.z(), 0, normal.x()));
-
-    extent.update(capCenter0 - dir1 * radius);
-    extent.update(capCenter0 + dir1 * radius);
-    extent.update(capCenter0 - dir2 * radius);
-    extent.update(capCenter0 + dir2 * radius);
-    extent.update(capCenter1 - dir1 * radius);
-    extent.update(capCenter1 + dir1 * radius);
-    extent.update(capCenter1 - dir2 * radius);
-    extent.update(capCenter1 + dir2 * radius);
+    // https://www.gamedev.net/forums/topic/338522-bounding-box-for-a-cylinder/#:~:text=Bounds%20in%20direction%20X%20(same%20for%20Y%20and%20Z)%20can%20be%20found%20as%3A%0ALet%20A.X%3CB.X%20(otherwise%20swap%20points)%0AGood%20approximate%20lowest%20bound%20is%20A.X%2Dr%20and%20highest%20is%20B.X%2Br%20(precise%20for%20capsule).%20At%20worst%2C%20in%20one%20direction%20it%20can%20be%20larger%20than%20needed
+    for(int d = 0; d < 3; ++d) {
+        double a = capCenter0[d];
+        double b = capCenter1[d];
+        if(a > b) std::swap(a, b);
+        extent.corners[0][d] = a - radius;
+        extent.corners[1][d] = b + radius;
+    }
 
     return extent;
 }
