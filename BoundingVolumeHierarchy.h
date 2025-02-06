@@ -21,7 +21,7 @@ public:
     RayHit findRayHit(Ray ray) override;
 
 private:
-    void split(uint splitCount, Extent extent, std::vector<uint> gbbIndexes);
+    void split(uint splitCount, Extent extent, const std::vector<uint>& gbbIndexes);
 
     static int findLongestAxis(const Extent& extent) ;
     static bool overlaps(const Extent& extent1, const Extent& extent2);

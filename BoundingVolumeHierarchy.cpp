@@ -15,9 +15,9 @@ void MedianSplit::constructHierarchy(const std::vector<std::shared_ptr<Geometry>
     }
 
     // surround entire scene with bounding box
-    Extent extent = geoBoxes[0].getExtent();
+    Extent extent = geoBoxes[0].getBounds();
     for(const auto & geoBox : geoBoxes) {
-        extent.update(geoBox.getExtent());
+        extent.update(geoBox.getBounds());
     }
     root = MSBoundingBox(extent);
 
@@ -30,7 +30,7 @@ void MedianSplit::constructHierarchy(const std::vector<std::shared_ptr<Geometry>
     split(++iterCount, extent, gbbIdxs);
 }
 
-void MedianSplit::split(uint splitCount, Extent extent, std::vector<uint> gbbIndexes) {
+void MedianSplit::split(uint splitCount, Extent extent, const std::vector<uint>& gbbIndexes) {
     // check if max number of splits has been reached
     if(splitCount > maxSplitCount || gbbIndexes.size() <= goalGeoCount) {
         bBoxes.push_back(MSBoundingBox(extent, gbbIndexes));
@@ -50,10 +50,10 @@ void MedianSplit::split(uint splitCount, Extent extent, std::vector<uint> gbbInd
     std::vector<uint> lGbbIndexes;
     std::vector<uint> rGbbIndexes;
     for(uint idx : gbbIndexes) {
-        if(overlaps(leftExt, geoBoxes[idx].getExtent())) {
+        if(overlaps(leftExt, geoBoxes[idx].getBounds())) {
             lGbbIndexes.push_back(idx);
         }
-        if(overlaps(rightExt, geoBoxes[idx].getExtent())) {
+        if(overlaps(rightExt, geoBoxes[idx].getBounds())) {
             rGbbIndexes.push_back(idx);
         }
     }
@@ -73,7 +73,7 @@ bool MedianSplit::overlaps(const Extent& extent1, const Extent& extent2) {
 }
 
 RayHit MedianSplit::findRayHit(Ray ray) {
-    if(!root.findRayIntersection(ray).isHit) {
+    if(!root.findRayBoxHit(ray).isHit) {
         // doesn't intersect any geo
         return RayHit::Miss();
     }
@@ -84,10 +84,10 @@ RayHit MedianSplit::findRayHit(Ray ray) {
 RayHit MedianSplit::findRayBoxesIntersection(Ray ray) {
     // FIXME: optimization with excluding already checked?
     // Find closest intersected box
-    MSBBHit closestBoxHit = MSBBHit::Miss();
+    RayAABBHit closestBoxHit = RayAABBHit::Miss();
     uint intersectBoxIdx = -1;
     for(int i = 0; i < bBoxes.size(); ++i) {
-        MSBBHit bBoxHit = bBoxes[i].findRayIntersection(ray);
+        RayAABBHit bBoxHit = bBoxes[i].findRayBoxHit(ray);
         if(bBoxHit.isHit && (!closestBoxHit.isHit || bBoxHit.tEnter < closestBoxHit.tEnter)) {
             closestBoxHit = bBoxHit;
             intersectBoxIdx = i;

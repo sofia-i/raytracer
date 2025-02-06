@@ -12,33 +12,12 @@
 #include "Triangle.hpp"
 #include "Sphere.h"
 
-/**
- * Geometry axis-aligned bounding box
- */
-class GeoBoundingBox : public Hittable {
+struct RayAABBHit {
 public:
-    explicit GeoBoundingBox(Extent extent, const std::shared_ptr<Geometry>& geoPtr);
-    explicit GeoBoundingBox(const std::shared_ptr<Geometry>& geoPtr);
-
-public:
-    Extent getExtent() const { return extent; }
-
-    RayHit findRayHit(Ray ray) override;
-
-private:
-    bool rayHitsBox(Ray ray);
-
-private:
-    Extent extent;
-    std::shared_ptr<Geometry> geoPtr;
-};
-
-struct MSBBHit {
-public:
-    MSBBHit(bool isHit, double tNear, double tFar) : isHit(isHit), tNear(tNear), tFar(tFar) {
+    RayAABBHit(bool isHit, double tNear, double tFar) : isHit(isHit), tNear(tNear), tFar(tFar) {
         tEnter = std::max(0., tNear);
     }
-    static MSBBHit Miss() { return MSBBHit(false); }
+    static RayAABBHit Miss() { return RayAABBHit(false); }
 
     bool isHit;
     double tNear;
@@ -46,24 +25,51 @@ public:
     double tEnter;
 
 private:
-    explicit MSBBHit(bool isHit) : isHit(isHit) {}
+    explicit RayAABBHit(bool isHit) : isHit(isHit) {}
+};
+
+class AxisAlignedBoundingBox {
+public:
+    AxisAlignedBoundingBox() = default;
+    explicit AxisAlignedBoundingBox(Extent bounds) : bounds(bounds) {}
+
+    RayAABBHit findRayBoxHit(Ray ray);
+
+    Extent getBounds() const { return bounds; }
+protected:
+    Extent bounds;
+};
+
+/**
+ * Geometry axis-aligned bounding box
+ */
+class GeoBoundingBox : public Hittable, public AxisAlignedBoundingBox {
+public:
+    explicit GeoBoundingBox(Extent extent, const std::shared_ptr<Geometry>& geoPtr);
+    explicit GeoBoundingBox(const std::shared_ptr<Geometry>& geoPtr);
+
+public:
+    RayHit findRayHit(Ray ray) override;
+
+private:
+    bool rayHitsBox(Ray ray);
+
+private:
+    std::shared_ptr<Geometry> geoPtr;
 };
 
 /**
  * Bounding box for use with median-split
  */
-class MSBoundingBox {
+class MSBoundingBox : public AxisAlignedBoundingBox {
 public:
     MSBoundingBox() = default;
     explicit MSBoundingBox(Extent bounds);
     MSBoundingBox(Extent bounds, std::vector<uint> gbbIndexes);
 
-    MSBBHit findRayIntersection(Ray ray);
-
     std::vector<uint> getGbbIndexes() { return gbbIndexes; }
 
 private:
-    Extent bounds;
     std::vector<uint> gbbIndexes;  // geo bounding box indexes
 };
 
