@@ -31,9 +31,9 @@ struct Extent {
         corners[0][0] = std::min(corners[0].x(), other.corners[0].x());
         corners[0][1] = std::min(corners[0].y(), other.corners[0].y());
         corners[0][2] = std::min(corners[0].z(), other.corners[0].z());
-        corners[1][0] = std::min(corners[1].x(), other.corners[1].x());
-        corners[1][1] = std::min(corners[1].y(), other.corners[1].y());
-        corners[1][2] = std::min(corners[1].z(), other.corners[1].z());
+        corners[1][0] = std::max(corners[1].x(), other.corners[1].x());
+        corners[1][1] = std::max(corners[1].y(), other.corners[1].y());
+        corners[1][2] = std::max(corners[1].z(), other.corners[1].z());
     }
 
     bool containsPoint(const vec3<double>& point) const {
