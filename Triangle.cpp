@@ -59,6 +59,7 @@ double Triangle::findRayGeoIntersectionT(Ray ray) {
 RayHit Triangle::findRayHit(Ray ray) {
     double t = findRayGeoIntersectionT(ray);
     // miss if t is negative
+    // FIXME: negative here breaks for triangle on bounding box
     if(t < 0) return RayHit::Miss();
 
     // Intersected, so calculate intersect information

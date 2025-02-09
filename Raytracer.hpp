@@ -49,6 +49,7 @@ public:
     }
 
 private:
+    const bool LOG_TIME = true;
     const bool USE_BOUNDING_VOLUME = true;
 
     const int MAX_NUM_RAYS = 5;
@@ -93,6 +94,9 @@ private:
                                   std::stack<double>& iors);
     double getPortionReflected(const vec3<double>& normal, const vec3<double>& rayD, const double matRefl,
                                const double& iorIn, const double& iorOut, const double& iorRatio);
+
+    void showProgress(int index, int total);
+
 };
 
 #endif /* Raytracer_hpp */

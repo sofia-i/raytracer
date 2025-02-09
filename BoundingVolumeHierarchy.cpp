@@ -81,7 +81,7 @@ RayHit MedianSplit::findRayHit(Ray ray) {
     return findRayBoxesIntersection(ray);
 }
 
-RayHit MedianSplit::findRayBoxesIntersection(Ray ray) {
+RayHit MedianSplit::findRayBoxesIntersection(Ray ray, double tCovered, int count) {
     // FIXME: optimization with excluding already checked?
     // Find closest intersected box
     RayAABBHit closestBoxHit = RayAABBHit::Miss();
@@ -100,21 +100,22 @@ RayHit MedianSplit::findRayBoxesIntersection(Ray ray) {
     // Box found: Intersect with each geo in the box (between enter and exit points)
     double enterT = std::max(0., closestBoxHit.tNear);
     double exitT = closestBoxHit.tFar;
-    double geoRayExitT = exitT - enterT;
-    assert(exitT >= 0 && geoRayExitT >= 0);
+    assert(exitT >= 0);
 
-    Ray geoRay = Ray(ray.getPointOnRay(enterT), ray.getDirection());
+
+    Ray geoRay = ray;
 
     RayHit closestRayHit = RayHit::Miss();
     for(uint idx : bBoxes[intersectBoxIdx].getGbbIndexes()) {
         RayHit hit = geoBoxes[idx].findRayHit(geoRay);
-        if(hit.isHit && (hit.t - geoRayExitT < EPSILON) && (!closestRayHit.isHit || hit.t < closestRayHit.t)) {
+        if(hit.isHit && (hit.t - exitT < EPSILON) && (!closestRayHit.isHit || hit.t < closestRayHit.t)) {
             closestRayHit = hit;
         }
     }
 
     // hit real geo!
     if(closestRayHit.isHit) {
+        closestRayHit.t += tCovered;
         return closestRayHit;
     }
 
@@ -122,7 +123,7 @@ RayHit MedianSplit::findRayBoxesIntersection(Ray ray) {
     // find exit point
     vec3<double> exitPoint = ray.getPointOnRay(exitT) + (EPSILON * ray.getDirection());
     Ray nextRay = Ray(exitPoint, ray.getDirection());
-    return findRayBoxesIntersection(nextRay);
+    return findRayBoxesIntersection(nextRay, tCovered + exitT, ++count);
 }
 
 int MedianSplit::findLongestAxis(const Extent &extent) {

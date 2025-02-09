@@ -26,15 +26,16 @@ private:
     static int findLongestAxis(const Extent& extent) ;
     static bool overlaps(const Extent& extent1, const Extent& extent2);
 
-    RayHit findRayBoxesIntersection(Ray ray);
+    RayHit findRayBoxesIntersection(Ray ray, double tCovered = 0.0, int count = 1);
 
 private:
     MSBoundingBox root;
     std::vector<MSBoundingBox> bBoxes;
     std::vector<GeoBoundingBox> geoBoxes;
 
-    uint maxSplitCount = 4;
-    uint goalGeoCount = 3;
+    // TODO: dynamically set these values
+    uint maxSplitCount = 50;
+    uint goalGeoCount = 100;
 
     const double EPSILON = 2.e-8;
 };

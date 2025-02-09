@@ -21,7 +21,7 @@ public:
     Ray(vec3<double> origin, vec3<double> direction) {
         this->origin = origin;
         this->direction = getUnitVector(direction);
-        this->invDir = getInverse(direction);
+        this->invDir = getInverse(this->direction);
     }
     
     vec3<double> getDirection() { return direction; }

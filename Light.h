@@ -119,6 +119,10 @@ public:
 
         uInc = width/wSampleCount;
         vInc = height/hSampleCount;
+
+        RandomNumber rn;
+        dist = rn.get_dist(-0.5, 0.5);
+        jitterAmt = 0.9;
     }
 
     ~AreaLight() override = default;
@@ -134,6 +138,7 @@ public:
         int vIdx = index / hSampleCount;
         int uIdx = index % hSampleCount;
         vec3<double> lightPt = blPos + (uIdx * uInc * uAxis) + (vIdx * vInc * vAxis);
+        lightPt += jitterAmt * std::min(uInc, vInc) * vec3<double>::getRandom(dist);
         vec3<double> vectorToLight = lightPt - point;
 
         // check back face
@@ -142,6 +147,7 @@ public:
             return;
         }
 
+        hit = true;
         distance = vectorToLight.length();
         direction = getUnitVector(vectorToLight);
     }
@@ -167,6 +173,9 @@ private:
 
     double uInc;
     double vInc;
+
+    std::uniform_real_distribution<double> dist;
+    double jitterAmt;
 };
 
 

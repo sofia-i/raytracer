@@ -25,7 +25,7 @@ public:
     double tEnter;
 
 private:
-    explicit RayAABBHit(bool isHit) : isHit(isHit) {}
+    explicit RayAABBHit(bool isHit) : isHit(isHit), tNear(-1), tFar(-1), tEnter(-1) {}
 };
 
 class AxisAlignedBoundingBox {

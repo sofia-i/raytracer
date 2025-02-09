@@ -84,7 +84,7 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
 
     while(infile >> description) {
         if(description == "#") {
-            std::cerr << "throwing away comment" << std::endl;
+            // std::cerr << "throwing away comment" << std::endl;
             std::getline(infile, description);
             continue;
         }

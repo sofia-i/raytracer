@@ -11,9 +11,25 @@
 #include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <chrono>
 #include "Utils.h"
 
+void Raytracer::showProgress(int index, int total) {
+    int barWidth = 70;
+
+    std::cout << "[";
+    float progress = float(index) / float(total);
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos) std::cout << "=";
+        else if (i == pos) std::cout << ">";
+        else std::cout << " ";
+    }
+    std::cout << "] " << int(progress * 100.0) << "%" << std::endl;
+}
+
 int*** Raytracer::raytrace(int numCols, int numRows) {
+    auto start_time = std::chrono::steady_clock::now();
     // initialize pixelColors multi-dimensional array
     int*** pixelColors = new int**[numRows];
     for(int i = 0; i < numRows; ++i) {
@@ -49,6 +65,18 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
             pixelColors[i][j][1] = pixelColor[1];
             pixelColors[i][j][2] = pixelColor[2];
         }
+        showProgress(i, numRows - 1);
+    }
+
+    auto end_time = std::chrono::steady_clock::now();
+
+    if(LOG_TIME) {
+        auto elapsed = (end_time - start_time);
+        std::cerr << "Time spent raytracing: ";
+        std::cerr << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << "[ms]";
+        std::cerr << " (" << std::chrono::duration_cast<std::chrono::seconds>(elapsed).count() << "[s]" << ")";
+        std::cerr << " (" << std::chrono::duration_cast<std::chrono::minutes>(elapsed).count() << "[m]" << ")";
+        std::cerr << std::endl;
     }
     
     return pixelColors;
@@ -68,6 +96,8 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
         light->getPathToLight(intersectPt, i, hitLight, shadowRayDirection, distToLight);
 
         if(!hitLight) {
+            // TODO: ?
+            inShadow += 1;
             continue;
         }
 

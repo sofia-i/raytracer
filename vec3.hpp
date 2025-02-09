@@ -25,9 +25,18 @@ public:
         e[0] = e0; e[1] = e1, e[2] = e2;
     }
 
+    static vec3<T> getRandom(std::uniform_real_distribution<T> dist) {
+        RandomNumber rn;
+        return vec3<T>(
+                    rn.get_random_double_from_dist(dist),
+                    rn.get_random_double_from_dist(dist),
+                    rn.get_random_double_from_dist(dist)
+                );
+    }
+
     static vec3<T> getRandom(T min, T max) {
         RandomNumber rn;
-        std::uniform_real_distribution<double> dist = rn.get_dist(min, max);
+        std::uniform_real_distribution<T> dist = rn.get_dist(min, max);
         return vec3<T>(
                     rn.get_random_double_from_dist(dist),
                     rn.get_random_double_from_dist(dist),
