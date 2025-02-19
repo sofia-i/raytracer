@@ -10,10 +10,50 @@
 #include <fstream>
 #include <vector>
 #include <cassert>
+#include <array>
 #include "Sphere.h"
 #include "Triangle.hpp"
 #include "Cylinder.h"
 #include "vec3.hpp"
+
+std::unordered_map<std::string, MaterialElement> MaterialParser::strToElem = {
+        {"Kd", DIFFUSE_K},
+        {"Ks", SPECULAR_K},
+        {"Ka", AMBIENT_K},
+        {"Od", DIFFUSE_COLOR},
+        {"Os", SPECULAR_COLOR},
+        {"Kgls", GLS_K},
+        {"Refl", REFLECTION_K},
+        {"rJitter", REFLECTION_JITTER},
+        {"Kt", TRANSMISSION_K},
+        {"kt", TRANSMISSION_K},
+        {"tJitter", TRANSMISSION_JITTER},
+        {"ior", IOR}
+};
+std::unordered_map<MaterialElement, std::string> MaterialParser::elemToString = {
+        {DIFFUSE_K, "Kd"},
+        {SPECULAR_K, "Ks"},
+        {AMBIENT_K, "Ka"},
+        {DIFFUSE_COLOR, "Od"},
+        {SPECULAR_COLOR, "Os"},
+        {GLS_K, "Kgls"},
+        {REFLECTION_K, "Refl"},
+        {REFLECTION_JITTER, "rJitter"},
+        {TRANSMISSION_K, "Kt"},
+        {TRANSMISSION_K, "kt"},
+        {TRANSMISSION_JITTER, "tJitter"},
+        {IOR, "ior"}
+};
+
+bool MaterialParser::findElem(std::string str, MaterialElement& elem) {
+    auto result = strToElem.find(str);
+    if(result == strToElem.end()) {
+        return false;
+    }
+
+    elem = result->second;
+    return true;
+}
 
 SceneParser::SceneParser() {
     strToElement["CameraLookAt"] = CAMERA_LOOK_AT;
@@ -55,6 +95,14 @@ vec3<double> SceneParser::readInVector(std::ifstream& infile){
     return {x, y, z};
 }
 
+vec3<double> SceneParser::readInVector(std::stringstream &instream) {
+    double x, y, z;
+    instream >> x;
+    instream >> y;
+    instream >> z;
+    return {x, y, z};
+}
+
 Scene SceneParser::parseFile(const std::string& input_file_path) {
     std::ifstream infile;
     infile.open(input_file_path);
@@ -82,38 +130,54 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
     std::vector<std::shared_ptr<Light>> lights;
     std::vector<std::shared_ptr<Material>> materials;
 
-    while(infile >> description) {
-        if(description == "#") {
-            // std::cerr << "throwing away comment" << std::endl;
-            std::getline(infile, description);
+    std::string line;
+    std::stringstream ss;
+    while(getline(infile, line)) {
+        if(line.empty()) {
             continue;
         }
+        // clear string stream
+        ss.clear();
+        ss.str(std::string());
+        // Load the line into string stream
+        ss << line;
+        ss >> description;
+
+        // check if the line is a comment (starts with #)
+        if(description == "#") {
+            continue;
+        }
+
+        // make sure the description is a recognized scene element
         if(!strToElement.count(description)) {
             throw std::invalid_argument("didn't recognize " + description);
         }
+
+        // Get the scene element to parse
         elem = strToElement[description];
         if(requiredElemFound.count(elem)) {
             requiredElemFound[elem] = true;
         }
+        // Parse the element
         switch(elem) {
             case CAMERA_LOOK_AT: {
-                camera_look_at  = readInVector(infile);
+                camera_look_at  = readInVector(ss);
                 break;
             }
             case CAMERA_LOOK_FROM: {
-                camera_look_from = readInVector(infile);
+                camera_look_from = readInVector(ss);
                 break;
             }
             case CAMERA_LOOK_UP: {
-                camera_look_up = readInVector(infile);
+                camera_look_up = readInVector(ss);
                 break;
             }
             case FIELD_OF_VIEW: {
-                infile >> fov;
+                ss >> fov;
                 break;
             }
             case AMBIENT_LIGHT: {
-                ambient_light = readInVector(infile);
+                ambient_light = readInVector(ss);
                 break;
             }
             case DIRECTIONAL_LIGHT: {
@@ -129,15 +193,11 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
                 break;
             }
             case BACKGROUND_COLOR: {
-                background_color = readInVector(infile);
+                background_color = readInVector(ss);
                 break;
             }
-            case MATERIAL: {
+            case MATERIAL: case REFRACTIVE_MATERIAL: {
                 materials.push_back(std::move(readInMaterial(infile)));
-                break;
-            }
-            case REFRACTIVE_MATERIAL: {
-                materials.push_back(std::move(readInRefractiveMaterial(infile)));
                 break;
             }
             case SPHERE: {
@@ -162,9 +222,10 @@ Scene SceneParser::parseFile(const std::string& input_file_path) {
 
     infile.close();
 
+    // Make sure all of the required elements were input
     for(SceneElement rElem : requiredElem) {
         if(!requiredElemFound[rElem]) {
-            throw std::runtime_error("Invalid input: " + elemToStr[elem] + " missing.");
+            throw std::runtime_error("Invalid input: " + elemToStr[rElem] + " missing.");
         }
     }
 
@@ -301,92 +362,117 @@ std::shared_ptr<Light> SceneParser::readInAreaLight(std::ifstream& infile) {
 }
 
 std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
-    std::string description;
 
-    infile >> description;
-    double kd;
-    infile >> kd;
+    std::vector<MaterialElement> required = {DIFFUSE_K, SPECULAR_K, AMBIENT_K,
+                                  DIFFUSE_COLOR, SPECULAR_COLOR,
+                                  GLS_K, REFLECTION_K};
+    std::vector<MaterialElement> included;
 
-    infile >> description;
-    double ks;
-    infile >> ks;
+    double kd, ks, ka, kgls, refl, ior;
+    vec3<double> diffuseColor, specularColor;
+    // variables with default values
+    double rJitter = 0;
+    double kRefraction = 0.0;
+    double tJitter = 0;
 
-    infile >> description;
-    double ka;
-    infile >> ka;
+    std::string identifier;
+    std::string line;
+    std::stringstream ss;
 
-    infile >> description;
-    vec3<double> color = readInVector(infile);
+    while(true) {
+        getline(infile, line);
+        // if you find a blank line, stop reading
+        if(line.empty()) {
+            break;
+        }
 
-    infile >> description;
-    vec3<double> specular = readInVector(infile);
+        // Load the line into a stream
+        ss.clear();
+        ss << line;
+        ss >> identifier;
 
-    infile >> description;
-    double kgls;
-    infile >> kgls;
+        // Find the element associated with the identifier in the input
+        MaterialElement elem;
+        bool valid = MaterialParser::findElem(identifier, elem);
+        if(!valid) {
+            throw std::invalid_argument("invalid material specifier: " + identifier);
+        }
 
-    infile >> description;
-    double refl;
-    infile >> refl;
+        included.push_back(elem);
+        // Parse the element
+        switch(elem) {
+            case DIFFUSE_K : {
+                ss >> kd;
+                break;
+            }
+            case SPECULAR_K : {
+                ss >> ks;
+                break;
+            }
+            case AMBIENT_K : {
+                ss >> ka;
+                break;
+            }
+            case DIFFUSE_COLOR : {
+                diffuseColor = readInVector(ss);
+                break;
+            }
+            case SPECULAR_COLOR : {
+                specularColor = readInVector(ss);
+                break;
+            }
+            case GLS_K : {
+                ss >> kgls;
+                break;
+            }
+            case REFLECTION_K : {
+                ss >> refl;
+                break;
+            }
+            case REFLECTION_JITTER : {
+                ss >> rJitter;
+                break;
+            }
+            case TRANSMISSION_K : {
+                ss >> kRefraction;
+                break;
+            }
+            case TRANSMISSION_JITTER : {
+                ss >> tJitter;
+                break;
+            }
+            case IOR : {
+                ss >> ior;
+                break;
+            }
+            default : {
+                break;
+            }
+        };
+    }
 
-    infile >> description;
-    double rJitter;
-    infile >> rJitter;
+    if(kRefraction > 0.0) {
+        required.push_back(IOR);
+    }
 
-    infile >> description;
-    double tJitter;
-    infile >> tJitter;
+    // Make sure all required elements were included
+    std::string message;
+    if(!hasAllRequired(required, included, message)) {
+        throw std::invalid_argument("Missing required material information." + message);
+    }
 
     // create material
-    return std::make_shared<Material>(kd, ks, ka, kgls, color, specular,
-                                      refl, rJitter, tJitter);
+    return std::make_shared<Material>(kd, ks, ka, kgls, diffuseColor, specularColor,
+                                      refl, rJitter, tJitter, ior, kRefraction);
 }
 
-std::shared_ptr<Material> SceneParser::readInRefractiveMaterial(std::ifstream& infile) {
-    std::string description;
-
-    infile >> description;
-    double kd;
-    infile >> kd;
-
-    infile >> description;
-    double ks;
-    infile >> ks;
-
-    infile >> description;
-    double ka;
-    infile >> ka;
-
-    infile >> description;
-    vec3<double> color = readInVector(infile);
-
-    infile >> description;
-    vec3<double> specular = readInVector(infile);
-
-    infile >> description;
-    double kgls;
-    infile >> kgls;
-
-    infile >> description;
-    double refl;
-    infile >> refl;
-
-    infile >> description;
-    double rJitter;
-    infile >> rJitter;
-
-    infile >> description;
-    double tJitter;
-    infile >> tJitter;
-
-    infile >> description;
-    double ior;
-    infile >> ior;
-
-    infile >> description;
-    double refractionK;
-    infile >> refractionK;
-
-    return std::make_shared<Material>(kd, ks, ka, kgls, color, specular,
-                                      refl, rJitter, tJitter, ior, refractionK);
+bool SceneParser::hasAllRequired(std::vector<MaterialElement> required, std::vector<MaterialElement> included,
+                                 std::string& message) {
+    for(MaterialElement r : required) {
+        if(std::find(included.begin(), included.end(), r) == included.end()) {
+            message = "Missing " + MaterialParser::elemToString[r];
+            return false;
+        }
+    }
+    return true;
 }

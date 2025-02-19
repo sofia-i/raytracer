@@ -48,6 +48,10 @@ public:
         ss << "\tSpecular Color: " << specularColor << std::endl;
         ss << "\tKgls: " << glsK << std::endl;
         ss << "\tReflectivity: " << refl << std::endl;
+        if(refractive) {
+            ss << "\tTransmission: " << refractionK << std::endl;
+            ss << "\tIOR: " << ior << std::endl;
+        }
 
         return ss.str();
     }

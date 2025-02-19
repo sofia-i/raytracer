@@ -19,4 +19,6 @@ Material::Material(double diffuseK, double specularK, double ambientK, double gl
             diffuseK(diffuseK), specularK(specularK), ambientK(ambientK), glsK(glsK),
             diffuseColor(diffuseColor), specularColor(specularColor), refl(refl),
             reflJitter(reflJitter), transJitter(transJitter),
-            ior(ior), refractionK(refractionK), refractive(true) {}
+            ior(ior), refractionK(refractionK) {
+    refractive = refractionK > 0.0;
+}
