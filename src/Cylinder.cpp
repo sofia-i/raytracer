@@ -9,6 +9,13 @@ Cylinder::Cylinder(vec3<double> capCenter1, vec3<double> capCenter2, double radi
         Geometry(mat, description),
         capCenter0(capCenter1), capCenter1(capCenter2), radius(radius) {
     cylinderD = getUnitVector(capCenter2 - capCenter1);
+
+    vec3<double> other = vec3<double>(0, 0, 1);
+    if(cross(cylinderD, other).length() == 0) {
+        other = {0, 1, 0};
+    }
+
+    capTangent = getUnitVector(cross(cylinderD, other));
 }
 
 bool Cylinder::cylinderPtInBounds(const vec3<double>& pt) {
@@ -126,7 +133,26 @@ RayHit Cylinder::findRayHit(Ray ray) {
         hitNormal = -hitNormal;
     }
 
-    return {true, t, hitPoint, hitNormal, backFace, material} ;
+    double u, v;
+    getUV(hitPoint, u, v);
+
+    return {true, t, u, v, hitPoint, hitNormal, backFace, material} ;
+}
+
+void Cylinder::getUV(const vec3<double>& point, double& u, double& v){
+    vec3<double> objectSpacePoint = point - capCenter0;
+
+    // get projection onto cap normal
+    vec3<double> normalProj = dot(objectSpacePoint, cylinderD) * cylinderD;
+    // get v from height
+    v = normalProj.length() / (capCenter1 - capCenter0).length();
+
+    // cap projection
+    vec3<double> capProj = objectSpacePoint - normalProj;
+
+    // find angle with cap tangent
+    double angle = std::acos(dot(capProj, capTangent) / capProj.length());
+    u = angle / (2 * M_PI);
 }
 
 Extent Cylinder::findExtent() {

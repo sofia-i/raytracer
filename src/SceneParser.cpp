@@ -21,6 +21,7 @@ std::unordered_map<std::string, MaterialElement> MaterialParser::strToElem = {
         {"Ks", SPECULAR_K},
         {"Ka", AMBIENT_K},
         {"Od", DIFFUSE_COLOR},
+        {"DiffuseTexture", DIFFUSE_TEXTURE},
         {"Os", SPECULAR_COLOR},
         {"Kgls", GLS_K},
         {"Refl", REFLECTION_K},
@@ -85,6 +86,20 @@ SceneParser::SceneParser() {
     elemToStr[MATERIAL] = "Material";
     elemToStr[REFRACTIVE_MATERIAL] = "RefractiveMaterial";
     elemToStr[CYLINDER] = "Cylinder";
+}
+
+vec2<double> SceneParser::readInVec2(std::ifstream& infile) {
+    double x, y;
+    infile >> x;
+    infile >> y;
+    return {x, y};
+}
+
+vec2<double> SceneParser::readInVec2(std::stringstream& instream) {
+    double x, y;
+    instream >> x;
+    instream >> y;
+    return {x, y};
 }
 
 vec3<double> SceneParser::readInVector(std::ifstream& infile){
@@ -279,7 +294,23 @@ std::shared_ptr<Geometry> SceneParser::readInTriangle(const std::string& obj_des
         vertices.push_back(vertex);
     }
 
+    bool hasSpecifiedUV = false;
+
+    // take in UVs if present
+    std::vector<vec2<double>> uvs;
+
     infile >> description;
+    if(description == "uv") {
+        hasSpecifiedUV = true;
+
+        uvs.push_back(readInVec2(infile));
+        uvs.push_back(readInVec2(infile));
+        uvs.push_back(readInVec2(infile));
+
+        infile >> description;
+    }
+
+    // Material index
     int matIdx;
     infile >> matIdx;
 
@@ -289,6 +320,9 @@ std::shared_ptr<Geometry> SceneParser::readInTriangle(const std::string& obj_des
     }
 
     // create triangle
+    if(hasSpecifiedUV) {
+        return std::make_shared<Triangle>(vertices, uvs, mats[matIdx], obj_description);
+    }
     return std::make_shared<Triangle>(vertices, mats[matIdx], obj_description);
 }
 
@@ -364,12 +398,13 @@ std::shared_ptr<Light> SceneParser::readInAreaLight(std::ifstream& infile) {
 std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
 
     std::vector<MaterialElement> required = {DIFFUSE_K, SPECULAR_K, AMBIENT_K,
-                                  DIFFUSE_COLOR, SPECULAR_COLOR,
+                                  DIFFUSE, SPECULAR_COLOR,
                                   GLS_K, REFLECTION_K};
     std::vector<MaterialElement> included;
 
     double kd, ks, ka, kgls, refl, ior;
-    vec3<double> diffuseColor, specularColor;
+    std::shared_ptr<Texture> diffuse;
+    vec3<double> specularColor;
     // variables with default values
     double rJitter = 0;
     double kRefraction = 0.0;
@@ -414,7 +449,16 @@ std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
                 break;
             }
             case DIFFUSE_COLOR : {
-                diffuseColor = readInVector(ss);
+                included.push_back(DIFFUSE);
+                vec3<double> diffuseColor = readInVector(ss);
+                diffuse = std::make_shared<ColorTexture>(diffuseColor);
+                break;
+            }
+            case DIFFUSE_TEXTURE : {
+                included.push_back(DIFFUSE);
+                std::string filename;
+                ss >> filename;
+                diffuse = std::make_shared<ImageTexture>(filename);
                 break;
             }
             case SPECULAR_COLOR : {
@@ -462,7 +506,7 @@ std::shared_ptr<Material> SceneParser::readInMaterial(std::ifstream& infile) {
     }
 
     // create material
-    return std::make_shared<Material>(kd, ks, ka, kgls, diffuseColor, specularColor,
+    return std::make_shared<Material>(kd, ks, ka, kgls, diffuse, specularColor,
                                       refl, rJitter, tJitter, ior, kRefraction);
 }
 

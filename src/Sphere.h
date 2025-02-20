@@ -28,6 +28,8 @@ public:
     RayHit findRayHit(Ray ray) override;
 
     Extent findExtent() override;
+
+    void getUV(const vec3<double>& point, double& u, double& v);
     
     std::string toString() const override {
         std::string str;

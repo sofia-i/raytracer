@@ -10,14 +10,17 @@
 
 struct RayHit {
     RayHit() = default;
-    RayHit(bool isHit, double t, const vec3<double>& intersectPt, const vec3<double>& normal,
+    RayHit(bool isHit, double t, double u, double v,
+           const vec3<double>& intersectPt, const vec3<double>& normal,
            bool backFace, const std::shared_ptr<Material>& mat) :
-            isHit(isHit), t(t), point(intersectPt), normal(normal), backFace(backFace), material(mat) {}
+            isHit(isHit), t(t), u(u), v(v), point(intersectPt), normal(normal), backFace(backFace), material(mat) {}
 
     static RayHit Miss() { return RayHit(false); }
 
     bool isHit;
     double t;
+    double u;
+    double v;
     vec3<double> point;
     vec3<double> normal;
     bool backFace;

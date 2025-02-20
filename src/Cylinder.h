@@ -27,6 +27,8 @@ public:
 
     Extent findExtent() override;
 
+    void getUV(const vec3<double>& point, double& u, double& v);
+
     std::string toString() const override {
         std::string str;
         std::stringstream ss(str);
@@ -45,6 +47,7 @@ private:
     double radius;
 
     vec3<double> cylinderD;
+    vec3<double> capTangent;
 
     double findRayGeoIntersectionT(Ray ray);
     bool cylinderPtInBounds(const vec3<double>& pt);

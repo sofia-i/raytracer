@@ -6,23 +6,24 @@
 #define RAYTRACER_2_MATERIAL_H
 
 #include "vec3.hpp"
+#include "Texture.h"
 #include <sstream>
 
 class Material {
 public:
     Material(double diffuseK, double specularK, double ambientK, double glsK,
-               vec3<double> diffuseColor, vec3<double> specularColor,
+               std::shared_ptr<Texture> diffuse, vec3<double> specularColor,
                double refl, double reflJitter, double transJitter);
 
     Material(double diffuseK, double specularK, double ambientK, double glsK,
-               vec3<double> diffuseColor, vec3<double> specularColor,
+               std::shared_ptr<Texture> diffuse, vec3<double> specularColor,
                double refl, double reflJitter, double transJitter,
                double ior, double refractionK);
 
     double getDiffuseK() const { return diffuseK; }
     double getSpecularK() const { return specularK; }
     double getAmbientK() const { return ambientK; }
-    vec3<double> getDiffuseColor() const { return diffuseColor; }
+    virtual vec3<double> getDiffuseColor(double u, double v, const vec3<double>& p) const;
     vec3<double> getSpecularColor() const { return specularColor; }
     double getGlsK() const { return glsK; }
     double getRefl() const { return refl; }
@@ -44,7 +45,7 @@ public:
         ss << "\tKd: " << diffuseK << std::endl;
         ss << "\tKs: " << specularK << std::endl;
         ss << "\tKa: " << ambientK << std::endl;
-        ss << "\tDiffuse Color: " << diffuseColor << std::endl;
+        ss << "\tDiffuse Color: " << *diffuse << std::endl;
         ss << "\tSpecular Color: " << specularColor << std::endl;
         ss << "\tKgls: " << glsK << std::endl;
         ss << "\tReflectivity: " << refl << std::endl;
@@ -61,7 +62,8 @@ protected:
     double specularK;  // specular coefficient
     double ambientK;  // ambient coefficient
     double glsK;  // gloss coefficient
-    vec3<double> diffuseColor;
+    // vec3<double> diffuseColor;
+    std::shared_ptr<Texture> diffuse;
     vec3<double> specularColor;
     double refl;
 

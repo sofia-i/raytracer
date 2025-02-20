@@ -36,7 +36,9 @@ enum MaterialElement {
     DIFFUSE_K,
     SPECULAR_K,
     AMBIENT_K,
+    DIFFUSE,
     DIFFUSE_COLOR,
+    DIFFUSE_TEXTURE,
     SPECULAR_COLOR,
     GLS_K,
     REFLECTION_K,
@@ -63,6 +65,8 @@ private:
     std::unordered_map<std::string, SceneElement> strToElement;
     std::unordered_map<SceneElement, std::string> elemToStr;
 
+    static vec2<double> readInVec2(std::ifstream& infile);
+    static vec2<double> readInVec2(std::stringstream& instream);
     static vec3<double> readInVector(std::ifstream& infile);
     static vec3<double> readInVector(std::stringstream& instream);
     std::shared_ptr<Geometry> readInSphere(const std::string& obj_description, std::ifstream& infile,

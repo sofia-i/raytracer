@@ -65,7 +65,7 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
             pixelColors[i][j][1] = pixelColor[1];
             pixelColors[i][j][2] = pixelColor[2];
         }
-        showProgress(i, numRows - 1);
+        if(LOG_TIME) showProgress(i, numRows - 1);
     }
 
     auto end_time = std::chrono::steady_clock::now();
@@ -135,14 +135,17 @@ double Raytracer::getInShadow(const vec3<double>& intersectPt, const std::shared
     return inShadow;
 }
 
-inline vec3<double> Raytracer::getAmbient(const std::shared_ptr<Material>& mat) {
-    return mat->getAmbientK() * scene.getAmbientLight() * mat->getDiffuseColor();
+inline vec3<double> Raytracer::getAmbient(const std::shared_ptr<Material>& mat, const vec3<double>& point,
+                                          const double u, const double v) {
+    return mat->getAmbientK() * scene.getAmbientLight() * mat->getDiffuseColor(u, v, point);
 }
 
 inline vec3<double> Raytracer::getDiffuse(const std::shared_ptr<Material>& mat,
+                                          const vec3<double>& point,
+                                          const double u, const double v,
                                           const std::shared_ptr<Light>& light,
                                           const vec3<double>& normal, const vec3<double>& toLight) {
-    return mat->getDiffuseK() * light->getLightColor() * mat->getDiffuseColor() * std::max(0.0, dot(normal, toLight));
+    return mat->getDiffuseK() * light->getLightColor() * mat->getDiffuseColor(u, v, point) * std::max(0.0, dot(normal, toLight));
 }
 
 inline vec3<double> Raytracer::getSpecular(const std::shared_ptr<Material>& mat,
@@ -167,7 +170,8 @@ inline vec3<double> Raytracer::getSpecular(const std::shared_ptr<Material>& mat,
  * @param intersectPt
  * @return
  */
-vec3<int> Raytracer::illuminationEq(const std::shared_ptr<Material>& mat, const vec3<double>& normal,
+vec3<int> Raytracer::illuminationEq(const std::shared_ptr<Material>& mat, const double u, const double v,
+                                    const vec3<double>& normal,
                                     const vec3<double>& view, const vec3<double>& intersectPt) {
     // all the incoming vectors should be normalized
     assert(normal.isNormalized() && view.isNormalized() && "normal and view rays should be normalized");
@@ -175,7 +179,7 @@ vec3<int> Raytracer::illuminationEq(const std::shared_ptr<Material>& mat, const 
     vec3<double> colorSum(0.0, 0.0, 0.0);
 
     // compute ambient contribution
-    colorSum += getAmbient(mat);
+    colorSum += getAmbient(mat, intersectPt, u, v);
 
     for(auto&& light : scene.lights) {
         // compute shadow information
@@ -185,7 +189,7 @@ vec3<int> Raytracer::illuminationEq(const std::shared_ptr<Material>& mat, const 
         if(shadowAmt < 1) {
             vec3<double> toLight = light->getDirectionToLight(intersectPt);
             // compute diffuse contribution
-            colorSum += (1 - shadowAmt) * getDiffuse(mat, light, normal, toLight);
+            colorSum += (1 - shadowAmt) * getDiffuse(mat, intersectPt, u, v, light, normal, toLight);
             // compute specular contribution
             colorSum += (1 - shadowAmt) * getSpecular(mat, light, normal, toLight, view);
         }
@@ -342,7 +346,7 @@ vec3<int> Raytracer::getRayResult(Ray ray, int rayCount, std::stack<double>& ior
     vec3<int> colorResult(0, 0, 0);
 
     vec3<double> toView = getUnitVector(ray.getOrigin() - hit.point);
-    vec3<int> primaryResult = illuminationEq(hit.material, hit.normal, toView, hit.point);
+    vec3<int> primaryResult = illuminationEq(hit.material, hit.u, hit.v, hit.normal, toView, hit.point);
     colorResult += primaryResult;
 
     vec3<int> refractionResult(0, 0, 0);

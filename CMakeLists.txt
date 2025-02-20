@@ -26,8 +26,8 @@ add_executable(raytracer_2
         src/Sphere.h
         src/Triangle.cpp
         src/Triangle.hpp
+        src/vec2.hpp
         src/vec3.cpp
-        src/vec3.hpp
         src/Light.cpp
         src/Light.h
         src/Mesh.cpp
@@ -41,4 +41,7 @@ add_executable(raytracer_2
         src/Extent.h
         src/Hittable.h
         src/BoundingBox.cpp
-        src/BoundingVolumeHierarchy.cpp)
+        src/BoundingVolumeHierarchy.cpp
+        src/ImageUtils.cpp
+        src/Image.cpp
+        src/Texture.cpp)

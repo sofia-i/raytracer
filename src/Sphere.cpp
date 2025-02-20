@@ -59,7 +59,10 @@ RayHit Sphere::findRayHit(Ray ray) {
     // determine back face (if ray starts inside sphere)
     bool backFace = (ray.getOrigin() - center).length() < radius;
 
-    return {true, t, hitPoint, hitNormal, backFace, material};
+    double u, v;
+    getUV(hitPoint, u, v);
+
+    return {true, t, u, v, hitPoint, hitNormal, backFace, material};
 }
 
 Extent Sphere::findExtent() {
@@ -71,4 +74,14 @@ Extent Sphere::findExtent() {
             center.z() - radius,
             center.z() + radius
     };
+}
+
+void Sphere::getUV(const vec3<double> &point, double &u, double &v) {
+    vec3<double> unitP = (point - center) / radius;
+
+    double theta = std::acos(-unitP.y());
+    double phi = std::atan2(-unitP.z(), unitP.x()) + M_PI;
+
+    u = phi / (2 * M_PI);
+    v = theta / M_PI;
 }

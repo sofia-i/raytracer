@@ -71,11 +71,15 @@ private:
     double getInShadow(const vec3<double>& intersectPt, const std::shared_ptr<Light>& light);
 
     WorldSpaceCoord calculateWorldSpaceCoords(int numCols, int numRows);
-    vec3<int> illuminationEq(const std::shared_ptr<Material>& mat, const vec3<double>& normal, const vec3<double>& view,
+    vec3<int> illuminationEq(const std::shared_ptr<Material>& mat, const double u, const double v,
+                             const vec3<double>& normal, const vec3<double>& view,
                              const vec3<double>& intersectPt);
 
-    inline vec3<double> getAmbient(const std::shared_ptr<Material>& mat);
-    inline vec3<double> getDiffuse(const std::shared_ptr<Material>& mat, const std::shared_ptr<Light>& light,
+    inline vec3<double> getAmbient(const std::shared_ptr<Material>& mat, const vec3<double>& point,
+                                   const double u, const double v);
+    inline vec3<double> getDiffuse(const std::shared_ptr<Material>& mat, const vec3<double>& point,
+                                   const double u, const double v,
+                                   const std::shared_ptr<Light>& light,
                                    const vec3<double>& normal, const vec3<double>& toLight);
     inline vec3<double> getSpecular(const std::shared_ptr<Material>& mat, const std::shared_ptr<Light>& light,
                                     const vec3<double>& normal, const vec3<double>& toLight,

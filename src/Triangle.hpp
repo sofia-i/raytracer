@@ -11,15 +11,13 @@
 #include <cstdio>
 #include <vector>
 #include "Geometry.h"
+#include "vec2.hpp"
 
 class Triangle : public Geometry {
 public:
-    Triangle(std::vector<vec3<double>> vertices, std::shared_ptr<Material> mat, const std::string& description) :
-        Geometry(mat, std::move(description)), vertices(vertices)
-    {
-        calculatePlaneNormal();
-        distToOrigin = calculateDistToOrigin();
-    }
+    Triangle(const std::vector<vec3<double>>& vertices, const std::vector<vec2<double>>& uvs,
+             std::shared_ptr<Material> mat, const std::string& description);
+    Triangle(const std::vector<vec3<double>>& vertices, std::shared_ptr<Material> mat, const std::string& description);
 
     ~Triangle() override = default; // I. destructor
     Triangle(const Triangle& other) = default; // II. copy constructor
@@ -30,6 +28,8 @@ public:
     RayHit findRayHit(Ray ray) override;
 
     Extent findExtent() override;
+
+    void getUV(const vec3<double>& point, double& u, double& v);
 
     std::vector<vec3<double>> getVertices() { return vertices; }
     
@@ -48,13 +48,14 @@ private:
     double findRayGeoIntersectionT(Ray ray);
 
 private:
-    std::vector<vec3<double>> vertices;
+    void calculatePlaneNormal();
+    double calculateDistToOrigin();
+
     vec3<double> planeNormal;
     double distToOrigin;
     bool doubleSided = true;
-
-    void calculatePlaneNormal();
-    double calculateDistToOrigin();
+    std::vector<vec3<double>> vertices;
+    std::vector<vec2<double>> uvs;
 };
 
 
