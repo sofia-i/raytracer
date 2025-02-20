@@ -50,6 +50,7 @@ public:
 
 private:
     const bool LOG_TIME = true;
+    const int LOG_INTERVAL = 500;
     const bool USE_BOUNDING_VOLUME = true;
 
     const int MAX_NUM_RAYS = 5;

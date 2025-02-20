@@ -64,8 +64,8 @@ int*** Raytracer::raytrace(int numCols, int numRows) {
             pixelColors[i][j][0] = pixelColor[0];
             pixelColors[i][j][1] = pixelColor[1];
             pixelColors[i][j][2] = pixelColor[2];
+            if(LOG_TIME && (i * numRows + j) % LOG_INTERVAL == 0) showProgress(i, numRows - 1);
         }
-        if(LOG_TIME) showProgress(i, numRows - 1);
     }
 
     auto end_time = std::chrono::steady_clock::now();
