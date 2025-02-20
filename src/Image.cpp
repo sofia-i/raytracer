@@ -4,6 +4,7 @@
 
 #include "Image.h"
 #include "ImageUtils.h"
+#include <cassert>
 
 Image::Image(const std::string& filename) : filename(filename), isLoaded(false) { }
 
@@ -20,8 +21,8 @@ vec3<double> Image::getPixelValue(double u, double v) const {
     if(!isLoaded) {
         throw std::runtime_error("Requested pixel from non-loaded Image.");
     }
-    int x = int(this->width * u);
-    int y = int(this->height * (1 - v));
+    int x = std::min(int(this->width * u), this->width - 1);
+    int y = std::min(int(this->height * (1 - v)), this->height - 1);
     return getPixelValue(x, y);
 }
 
@@ -29,6 +30,9 @@ vec3<double> Image::getPixelValue(int x, int y) const {
     if(!isLoaded) {
         throw std::runtime_error("Requested pixel from non-loaded Image.");
     }
+    assert(x < this->width);
+    assert(y < this->height);
+
     unsigned char *p = image + (3 * (y * this->width + x));
     unsigned char r = p[0];
     unsigned char g = p[1];
