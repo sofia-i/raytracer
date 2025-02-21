@@ -60,6 +60,8 @@ int main(int argc, char *argv[]) {
     int numColumns = 1024;
     int numRows = 1024;
     int maxColorVal = 255;
+
+    scene.camera.updateFov(numColumns, numRows);
     
     Raytracer* raytracer = new Raytracer(scene);
 

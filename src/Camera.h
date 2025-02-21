@@ -39,6 +39,9 @@ public:
 
     void setFovX(double newFovX) { this->fovX = newFovX; }
     void setFovY(double newFovY) { this->fovY = newFovY; }
+    void updateFov(double ratioX, double ratioY) {
+        fovX = (ratioX / ratioY) * fovY;
+    }
     double getFovX() { return fovX; }
     double getFovY() { return fovY; }
     double getFovXRad() { return fovX * M_PI / 180; }

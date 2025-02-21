@@ -52,8 +52,9 @@ public:
         return os;
     }
 
-private:
     Camera camera;
+
+private:
     vec3<double> ambient_light;
     vec3<double> backgroundColor;
 
